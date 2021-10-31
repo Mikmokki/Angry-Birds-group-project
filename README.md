@@ -1,13 +1,13 @@
-# Project Name (replace here!)
+# Angry birds
 
 This is the template for the projects. Please copy the project description here. 
 You can use Markdown language to render it as formatted **HTML** file.
 
 # Group
-- Member 1
-- Member 2
-- Member 3
-- Member 4
+- Sami Porio 793540
+- Mikko Juusti 793469
+- Kalle Kankaanpää 793456
+- Jaakko Hintsala 886790
 
 # Repository organization
 Your project implementation should follow the skelaton organization in this repository.
