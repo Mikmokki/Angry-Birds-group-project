@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\box2d.dir/objects.a
+C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\ar.exe qc CMakeFiles\box2d.dir/objects.a @CMakeFiles\box2d.dir\objects1.rsp
+C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\G__~1.EXE -g -shared -o ..\bin\libbox2d.dll -Wl,--out-implib,..\bin\libbox2d.dll.a -Wl,--major-image-version,2,--minor-image-version,4 -Wl,--whole-archive CMakeFiles\box2d.dir/objects.a -Wl,--no-whole-archive @CMakeFiles\box2d.dir\linklibs.rsp

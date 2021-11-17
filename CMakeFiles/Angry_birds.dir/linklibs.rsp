@@ -1,0 +1,1 @@
+ Box2D/bin/libbox2d.dll.a SFML/lib/libsfml-graphics-d.a SFML/lib/libsfml-audio-d.a SFML/lib/libsfml-network-d.a SFML/lib/libsfml-window-d.a SFML/lib/libsfml-system-d.a -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

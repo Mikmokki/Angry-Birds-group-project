@@ -1,0 +1,10 @@
+^C:\USERS\CHALLE\KOULU\ANGRY-BIRDS-GROUP-2\CMAKEFILES\0A7BBAB4BB3E17F6376F98255D77AA92\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Challe/koulu/angry-birds-group-2 -BC:/Users/Challe/koulu/angry-birds-group-2 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Challe/koulu/angry-birds-group-2/Angry_birds.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
