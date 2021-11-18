@@ -47,3 +47,7 @@ dkms.conf
 
 #user info
 *.user*
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
