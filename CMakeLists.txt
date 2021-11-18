@@ -27,8 +27,8 @@ add_executable(${EXECUTABLE_NAME} ./src/main.cpp)
 # Box2D
 add_subdirectory("${BOX2D_DIR}" box2d)
 target_link_libraries(angry_birds box2d)
-SET(BOX2D_BUILD_TESTBED OFF CACHE BOOL "skip building testbed" FORCE)
-SET(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "skip building unit tests" FORCE)
+SET(BOX2D_BUILD_TESTBED false CACHE BOOL "skip building testbed" FORCE)
+SET(BOX2D_BUILD_UNIT_TESTS false CACHE BOOL "skip building unit tests" FORCE)
 
 # SFML
 add_subdirectory("${SFML_DIR}" SFML)
