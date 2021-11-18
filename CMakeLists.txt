@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PROJECT_BINARY_DIR ${CMAKE_SOURCE_DIR})
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 
-set(BOX2D_DIR "${CMAKE_SOURCE_DIR}/libs/Box2D")
+set(BOX2D_DIR "${CMAKE_SOURCE_DIR}/libs/box2d")
 set(SFML_DIR "${CMAKE_SOURCE_DIR}/libs/SFML")
 
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${BOX2D_DIR}")
-
+include_directories (/usr/include/freetype2)
 # Enable debug symbols by default
 # must be done before project() statement
 if(NOT CMAKE_BUILD_TYPE)
@@ -25,7 +25,7 @@ set(EXECUTABLE_NAME "angry_birds")
 add_executable(${EXECUTABLE_NAME} ./src/main.cpp)
 
 # Box2D
-add_subdirectory("${BOX2D_DIR}" Box2D)
+add_subdirectory("${BOX2D_DIR}" box2d)
 target_link_libraries(angry_birds box2d)
 SET(BOX2D_BUILD_TESTBED OFF CACHE BOOL "skip building testbed" FORCE)
 SET(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "skip building unit tests" FORCE)
