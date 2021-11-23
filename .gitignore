@@ -17,7 +17,8 @@
 *.pch
 
 # Libraries
-
+Box2D/
+SFML/
 
 # Shared objects (inc. Windows DLLs)
 
@@ -44,3 +45,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#user info
+*.user*
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+
+# Build folder
+build/
