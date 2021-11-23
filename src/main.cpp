@@ -61,6 +61,7 @@ int main()
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
            sf::Vector2i pos = sf::Mouse::getPosition(sfmlWin);
            bird.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
+           std::cout << pos.y << std::endl;
         }
         sfmlWin.clear(sf::Color::Green);
         sfmlWin.draw(bird);

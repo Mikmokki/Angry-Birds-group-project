@@ -21,8 +21,9 @@ endif()
 
 project (angry_birds)
 
+file(GLOB SOURCES src/*.cpp)
 set(EXECUTABLE_NAME "angry_birds")
-add_executable(${EXECUTABLE_NAME} ./src/main.cpp)
+add_executable(${EXECUTABLE_NAME} ${SOURCES})
 
 # Box2D
 add_subdirectory("${BOX2D_DIR}" box2d)
