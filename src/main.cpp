@@ -32,13 +32,15 @@ return a.exec();
 
 int main()
 {
-    std::cout << "Puna";
-    sf::RenderWindow sfmlWin(sf::VideoMode(600, 360), "Hello World SFML Window");
-    std::cout << "tiainen" << std::endl;
+    sf::RenderWindow sfmlWin(sf::VideoMode(1600, 900), "Angry Birds");
     b2Vec2 gravity(0.0f, 9.8f);
-    std::cout << "gravity" << std::endl;
     b2World *world = new b2World(gravity);
-    std::cout << "maailma" << std::endl;
+    sf::CircleShape bird;
+    bird.setRadius(30);
+    bird.setOutlineColor(sf::Color::Red);
+    bird.setOutlineThickness(5);
+    bird.setOrigin(30.0f,30.0f);
+    bird.setPosition(100, 600);
     while (sfmlWin.isOpen())
     {
 
@@ -51,11 +53,17 @@ int main()
             case sf::Event::EventType::Closed:
                 sfmlWin.close();
                 break;
+            case sf::Event::EventType::Resized:
+                sfmlWin.setSize(sf::Vector2u(e.size.width,e.size.width*9/16));
+                break;
             }
         }
-
-        sfmlWin.clear();
-        //sfmlWin.draw();
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+           sf::Vector2i pos = sf::Mouse::getPosition(sfmlWin);
+           bird.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
+        }
+        sfmlWin.clear(sf::Color::Green);
+        sfmlWin.draw(bird);
         sfmlWin.display();
     }
 
