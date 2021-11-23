@@ -8,7 +8,7 @@ In each meeting, you are required to discuss:
 4. Deviations and changes to the project plan, if any
 
 
-# Meeting 02.11.2021 15::00
+# Meeting 02.11.2021 15:00
 
 **Participants**: 
 1. Kalle Kankaanpää
@@ -44,3 +44,38 @@ We almost finished the project plan during this meeting.
 
 ### TODOs
 1. We will finish the project plan
+
+
+
+
+
+# Meeting 23.11.2021 18:00
+
+**Participants**: 
+1. Kalle Kankaanpää
+2. Jaakko Hintsala
+3. Mikko Juusti
+4. Sami Porio
+
+## Summary of works
+1. We configured the libraries and setup the cmake for all developers.
+
+## Challenges
+
+1. We have decided to not use Qt at all.
+
+## Actions
+1. Kalle Kankaanpää
+    - Will develop the game logic and the interface between box2d and SFML
+2. Mikko Juusti
+    - Will create the slingshot mechanic and dive into the user menu creation
+3. Jaakko Hintsala
+    - Will look at the bird following camera mechanic
+4. Sami Porio
+    - Will look at the tranlations of SFML sprites and box2d physical bodies and study closer the physic simulations
+
+## Project status 
+The plan and cmake configuration is finished.
+
+### TODOs
+1. Start to develop the game using the tools (SFML and Box2D)
