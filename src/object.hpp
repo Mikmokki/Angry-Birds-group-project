@@ -9,7 +9,7 @@
 class Object
 {
 public:
-    Object(std::string texture_file)
+    Object(std::string texture_file, b2Body *body) : body_(body)
     {
         if (!texture_.loadFromFile(texture_file))
         {
@@ -19,6 +19,7 @@ public:
 
 private:
     sf::Texture texture_;
+    b2Body *body_;
 };
 
 #endif // ANGRY_BIRDS_OBJECT
