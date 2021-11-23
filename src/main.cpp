@@ -39,7 +39,7 @@ int main()
     bird.setRadius(30);
     bird.setOutlineColor(sf::Color::Red);
     bird.setOutlineThickness(5);
-    bird.setOrigin(30.0f,30.0f);
+    bird.setOrigin(30.0f, 30.0f);
     bird.setPosition(100, 600);
     while (sfmlWin.isOpen())
     {
@@ -54,14 +54,15 @@ int main()
                 sfmlWin.close();
                 break;
             case sf::Event::EventType::Resized:
-                sfmlWin.setSize(sf::Vector2u(e.size.width,e.size.width*9/16));
+                sfmlWin.setSize(sf::Vector2u(e.size.width, e.size.width * 9 / 16));
                 break;
             }
         }
-        if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-           sf::Vector2i pos = sf::Mouse::getPosition(sfmlWin);
-           bird.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
-           std::cout << pos.y << std::endl;
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            sf::Vector2i pos = sf::Mouse::getPosition(sfmlWin);
+            bird.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
+            std::cout << pos.y << std::endl;
         }
         sfmlWin.clear(sf::Color::Green);
         sfmlWin.draw(bird);
