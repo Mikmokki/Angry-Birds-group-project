@@ -15,9 +15,18 @@ public:
         {
             std::cout << "Texture loading failed" << std::endl; // maybe should throw an error
         }
+        //texture.loadFromFile(texture_file);
+        //sprite_ = sf::Sprite(texture);
+        //sprite_.setTexture(texture);
     };
 
+    b2Body *GetBody() { return body_; }
+
+    sf::Texture &GetTexture() { return texture_; }
+    //sf::Sprite &GetSprite() { return sprite_; }
+
 private:
+    //sf::Sprite sprite_;
     sf::Texture texture_;
     b2Body *body_;
 };
