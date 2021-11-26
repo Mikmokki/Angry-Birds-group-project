@@ -13,6 +13,7 @@ const float scale = 100.0f;
 class Level
 {
 public:
+    Level();
     Level(std::string name, b2Vec2 bird_starting_pos);
 
     std::string GetName() const
@@ -32,11 +33,12 @@ public:
 
     void ThrowBird(int angle, b2Vec2 velocity);
 
-    void RenderLevel(sf::RenderWindow &window);
+    // Returns true if world hasn't settled yet
+    bool RenderLevel(sf::RenderWindow &window);
 
 private:
-    const std::string name_;
-    const b2Vec2 bird_starting_position_;
+    std::string name_;
+    b2Vec2 bird_starting_position_;
     b2World *world_;
     std::list<Object *> objects_;
 };
