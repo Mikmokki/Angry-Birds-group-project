@@ -2,6 +2,7 @@
 #include <box2d/box2d.h>
 #include <iostream>
 #include "converter.hpp"
+#include "ObjectCreator.hpp"
 
 int main()
 {
@@ -94,6 +95,10 @@ int main()
     wall.setRotation(wall_body->GetAngle());
     wall.setTexture(wall_texture);
 
+    std::tuple<b2Body *, sf::Sprite> second_wall = CreateWall(world, TEXTURE_SCALE, 20.0f, 35.0f);
+    b2Body *wall_body2 = std::get<0>(second_wall);
+    sf::Sprite wall2 = std::get<1>(second_wall);
+
     const float TIME_STEP = 1.0f / 1200.0f;
     int32 velocity_iterations = 6;
     int32 position_iterations = 2;
@@ -129,13 +134,18 @@ int main()
         ground.setPosition(b2ToSfCoords(ground_body->GetPosition()));
         bird.setPosition(b2ToSfCoords(bird_body->GetPosition()));
         bird.setRotation(-bird_body->GetAngle() * (180.0f / 3.14f));
+
         wall.setPosition(b2ToSfCoords(wall_body->GetPosition()));
         wall.setRotation(-wall_body->GetAngle() * (180.0f / 3.14f));
+
+        wall2.setPosition(b2ToSfCoords(wall_body2->GetPosition()));
+        wall2.setRotation(-wall_body2->GetAngle() * (180.0f / 3.14f));
 
         sfmlWin.clear(sf::Color::Cyan);
         sfmlWin.draw(ground);
         sfmlWin.draw(bird);
         sfmlWin.draw(wall);
+        sfmlWin.draw(wall2);
         sfmlWin.display();
 
         switch (DEBUG)
@@ -152,9 +162,6 @@ int main()
         default:
             break;
         }
-        // std::cout << b2ToSfCoords(ground_body->GetPosition()).x << ", " << b2ToSfCoords(ground_body->GetPosition()).y << std::endl;
-        // std::cout << body->GetPosition().x << ", " << body->GetPosition().y << std::endl;
-        // std::cout << b2ToSfCoords(wall_body->GetPosition()).x << ", " << b2ToSfCoords(wall_body->GetPosition()).y << " Rotation: " << wall_body->GetAngle() << std::endl;
     }
 
     return 0;
