@@ -118,13 +118,11 @@ int main()
         {
             sf::Vector2i pos = sf::Mouse::getPosition(sfmlWin);
             bird.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
-            // sf::Vector2i mouseV(static_cast<float>(pos.x), static_cast<float>(pos.y));
             bird_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
             bird_body->SetTransform(sfToB2Coords(sf::Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y))), 1.0f);
             bird_body_def.position.Set(sfToB2Coords(sf::Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y))).x, sfToB2Coords(sf::Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y))).y);
             bird_body->SetLinearVelocity(b2Vec2(5.f, 0.f));
             world->Step(TIME_STEP, velocity_iterations, position_iterations);
-            // std::cout << pos.y << std::endl;
         }
 
         world->Step(TIME_STEP, velocity_iterations, position_iterations);
@@ -133,11 +131,8 @@ int main()
         bird.setRotation(-bird_body->GetAngle() * (180.0f / 3.14f));
         wall.setPosition(b2ToSfCoords(wall_body->GetPosition()));
         wall.setRotation(-wall_body->GetAngle() * (180.0f / 3.14f));
-        // std::cout << b2ToSfCoords(body->GetPosition()).x << ", " << b2ToSfCoords(body->GetPosition()).y << "   " << body->GetPosition().x << ", " << body->GetPosition().y << std::endl;
-        // box.setPosition(0, 0);
 
-        sfmlWin.clear(sf::Color::White);
-        // sfmlWin.draw(bird);
+        sfmlWin.clear(sf::Color::Cyan);
         sfmlWin.draw(ground);
         sfmlWin.draw(bird);
         sfmlWin.draw(wall);
