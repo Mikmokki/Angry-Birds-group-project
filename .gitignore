@@ -56,3 +56,6 @@ CMakeFiles/
 
 # Build folder
 build/
+
+# IDE files
+.vscode/
