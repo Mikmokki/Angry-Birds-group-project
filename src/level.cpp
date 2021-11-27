@@ -2,7 +2,7 @@
 #include "bird.hpp"
 #include "ground.hpp"
 
-Level::Level() : name_(""), bird_starting_position_(b2Vec2(0,0)) {}
+Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
 Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_starting_position_(bird_starting_pos)
 {
@@ -16,7 +16,6 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     groundBox.SetAsBox(50.0f, 10.0f);
     groundBody->CreateFixture(&groundBox, 0.0f);
 }
-
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
@@ -62,7 +61,6 @@ bool Level::RenderLevel(sf::RenderWindow &window)
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
         sprite.setPosition(toSFVector(pos));
-        auto sfPos = sprite.getPosition();
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }
