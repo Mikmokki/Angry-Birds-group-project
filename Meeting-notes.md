@@ -79,3 +79,41 @@ The plan and cmake configuration is finished.
 
 ### TODOs
 1. Start to develop the game using the tools (SFML and Box2D)
+
+
+
+
+# Meeting 27.11.2021 08:00
+
+**Participants**: 
+1. Kalle Kankaanpää
+2. Jaakko Hintsala
+3. Mikko Juusti
+4. Sami Porio
+
+## Summary of works
+1. We demo'd the features we all have been working on and merged them into master.
+
+## Challenges
+
+1. Creating levels
+
+## Actions
+1. Kalle Kankaanpää
+    - Develop saving the levels
+2. Mikko Juusti
+    - Start building the graphcal UI
+3. Jaakko Hintsala
+    - Incorporate enemies
+4. Sami Porio
+    - Get to know levels and try building a level editor.
+
+## Project status 
+The graphics and physics are working. A good amount of features are merged in master. Many of the mechanics are working.
+
+### TODOs
+1. User interface
+2. Take the gmae logic structure into use
+3. Create levels (Level creator?)
+4. Save levels
+5. 
