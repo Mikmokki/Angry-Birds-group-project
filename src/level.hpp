@@ -3,7 +3,7 @@
 
 #include <string>
 #include <list>
-#include <Box2D/box2d.h>
+#include <box2d/box2d.h>
 #include <SFML/Graphics.hpp>
 #include "object.hpp"
 
