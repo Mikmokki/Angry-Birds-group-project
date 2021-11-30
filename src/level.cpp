@@ -1,6 +1,7 @@
 #include "level.hpp"
 #include "bird.hpp"
 #include "ground.hpp"
+#include "math.h"
 
 Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
@@ -15,20 +16,15 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
     groundBody->CreateFixture(&groundBox, 0.0f);
-}
-
-void Level::ThrowBird(int angle, b2Vec2 velocity)
-{
+    // Create the bird object
     b2BodyDef birdDef;
     birdDef.type = b2_dynamicBody;
-    birdDef.angle = angle;
     birdDef.position = bird_starting_position_;
-    birdDef.linearVelocity = velocity;
     birdDef.linearDamping = 0.5f; // This could be constant and should be adjusted
+    birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
     b2Body *body = world_->CreateBody(&birdDef);
-    Object *obj = new Bird(body);
-    objects_.push_back(obj);
+    bird_ = new Bird(body);
 
     b2CircleShape birdShape;
     birdShape.m_radius = 0.3;
@@ -37,8 +33,23 @@ void Level::ThrowBird(int angle, b2Vec2 velocity)
     birdFixture.shape = &birdShape;
     birdFixture.density = 1.0f;
     birdFixture.friction = 1.0f;
+    birdFixture.restitution = 0.4f;
 
     body->CreateFixture(&birdFixture);
+}
+
+void Level::ThrowBird(int angle, b2Vec2 velocity)
+{
+    b2Body *body = bird_->GetBody();
+    body->SetGravityScale(1);
+    body->ApplyLinearImpulseToCenter(velocity, true);
+}
+
+void Level::ResetBird()
+{
+    b2Body *body = bird_->GetBody();
+    body->SetGravityScale(0);
+    body->SetTransform(bird_starting_position_, 0);
 }
 
 sf::Vector2f toSFVector(b2Vec2 original)
@@ -51,10 +62,20 @@ b2Vec2 toB2Vector(sf::Vector2f original)
     return b2Vec2(original.x / scale, 900 - (original.y / scale));
 }
 
-bool Level::RenderLevel(sf::RenderWindow &window)
+bool Level::DrawLevel(sf::RenderWindow &window)
 {
+    // Draw slingshot
+    sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
+    sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
+    sf::Texture slingshot_texture;
+    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
+    slingshot.setTexture(&slingshot_texture);
+    slingshot.setOrigin(50, 50);
+    slingshot.setPosition(slingshot_center);
+    window.draw(slingshot);
+
+    // Draw box2d objects
     bool moving = false;
-    window.clear(sf::Color::White);
     for (auto it : objects_)
     {
         b2Body *body = it->GetBody();
@@ -64,6 +85,56 @@ bool Level::RenderLevel(sf::RenderWindow &window)
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }
-    window.display();
+
+    // Draw bird
+    b2Body *body = bird_->GetBody();
+    b2Vec2 pos = body->GetPosition();
+    sf::Sprite sprite = bird_->GetSprite();
+    sprite.setPosition(toSFVector(pos));
+    window.draw(sprite);
+    moving = moving || body->IsAwake();
+
     return moving;
+}
+
+std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
+{
+    sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
+    if (slingshot_center.x - mouse_position.x > 0)
+    {
+        float direction;
+        if (mouse_position.y - slingshot_center.y > 0)
+        {
+            direction = 90 - atan((slingshot_center.x - mouse_position.x) / (mouse_position.y - slingshot_center.y)) * 180 / M_PI; // Tämä kans convertteriks
+        }
+        else if (mouse_position.y - slingshot_center.y == 0)
+        {
+            direction = 0;
+        }
+        else
+        {
+            direction = -90 + atan((slingshot_center.x - mouse_position.x) / (slingshot_center.y - mouse_position.y)) * 180 / M_PI;
+        }
+
+        float rotation = -direction;
+
+        float length = std::min(sqrt(pow(slingshot_center.x - mouse_position.x, 2) + pow(mouse_position.y - slingshot_center.y, 2)), 100.0);
+
+        sf::RectangleShape line(sf::Vector2f(length, 5));
+        line.setFillColor(sf::Color(0, 0, 0));
+        line.setPosition(slingshot_center.x, slingshot_center.y);
+        line.setRotation(180 + rotation);
+        window.draw(line);
+        line.setSize(sf::Vector2f(length / 3, 4));
+        line.setRotation(150 + rotation);
+        window.draw(line);
+        line.setRotation(210 + rotation);
+        window.draw(line);
+        return {direction, length};
+    }
+    else
+    {
+        return {0, 0};
+    }
 }

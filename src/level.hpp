@@ -5,7 +5,7 @@
 #include <list>
 #include <box2d/box2d.h>
 #include <SFML/Graphics.hpp>
-#include "object.hpp"
+#include "bird.hpp"
 
 const b2Vec2 gravity(0.0f, -9.8f);
 const float scale = 100.0f;
@@ -31,14 +31,25 @@ public:
         return objects_;
     }
 
+    Object *GetBird()
+    {
+        return bird_;
+    }
+
     void ThrowBird(int angle, b2Vec2 velocity);
 
+    void ResetBird();
+
     // Returns true if world hasn't settled yet
-    bool RenderLevel(sf::RenderWindow &window);
+    bool DrawLevel(sf::RenderWindow &window);
+
+    // Returns { direction, power } of the arrow
+    std::tuple<float, float> DrawArrow(sf::RenderWindow &window);
 
 private:
     std::string name_;
     b2Vec2 bird_starting_position_;
+    Bird *bird_;
     b2World *world_;
     std::list<Object *> objects_;
 };

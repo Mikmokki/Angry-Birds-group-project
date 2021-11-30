@@ -6,7 +6,7 @@
 class Bird : public Object
 {
 public:
-    Bird(b2Body *body) : Object("../resources/bird.png", body)
+    Bird(b2Body *body) : Object("../resources/images/bird.png", body)
     {
         sprite_.setScale(bird_scale_, bird_scale_);
 
