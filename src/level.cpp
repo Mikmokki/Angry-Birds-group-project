@@ -1,6 +1,7 @@
 #include "level.hpp"
 #include "bird.hpp"
 #include "ground.hpp"
+#include "converters.hpp"
 
 Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
@@ -41,16 +42,6 @@ void Level::ThrowBird(int angle, b2Vec2 velocity)
     body->CreateFixture(&birdFixture);
 }
 
-sf::Vector2f toSFVector(b2Vec2 original)
-{
-    return sf::Vector2f(original.x * scale, 800 - (original.y * scale));
-}
-
-b2Vec2 toB2Vector(sf::Vector2f original)
-{
-    return b2Vec2(original.x / scale, 900 - (original.y / scale));
-}
-
 bool Level::RenderLevel(sf::RenderWindow &window)
 {
     bool moving = false;
@@ -60,7 +51,7 @@ bool Level::RenderLevel(sf::RenderWindow &window)
         b2Body *body = it->GetBody();
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
-        sprite.setPosition(toSFVector(pos));
+        sprite.setPosition(utils::B2ToSfCoords(pos));
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }

@@ -3,7 +3,6 @@
 #include <iostream>
 #include "level.hpp"
 #include "object.hpp"
-#include "sf_b2_converter.hpp"
 #include <math.h>
 
 int main()
