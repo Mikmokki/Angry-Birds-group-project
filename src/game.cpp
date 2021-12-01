@@ -1,6 +1,11 @@
 #include "game.hpp"
 #include "math.h"
 
+sf::Vector2f toSFVector_(b2Vec2 original)
+{
+    return sf::Vector2f(original.x * scale, 800 - (original.y * scale));
+}
+
 void Game::LoadLevel(std::string filename)
 {
     b2Vec2 bsp(3.0f, 3.0f);
@@ -18,9 +23,9 @@ void Game::Start()
 
     sf::View game_view(window.getDefaultView());
 
-    bool settled = true;
-    float direction = 0;
-    float power = 0;
+    bool settled = true; // Is the world in a settled state (nothing is moving)
+    float direction = 0; // Direction of the aiming arrow in degrees
+    float power = 0;     // Power of the aiming arrow (0-100)
 
     while (window.isOpen())
     {
@@ -75,10 +80,19 @@ void Game::Start()
 
         window.clear(sf::Color::White);
         window.setView(game_view);
-        current_level_.GetWorld()->Step(time_step, velocity_iterations, position_iterations);
+
+        sf::Vector2f bird_position = toSFVector_(current_level_.GetBird()->GetBody()->GetPosition());
+        sf::Vector2f default_center = window.getDefaultView().getCenter();
+
+        // Used std min for the y since sfml coordinates are from top left downwards
+        game_view.setCenter(bird_position.x, std::min(bird_position.y, default_center.y));
+
+        current_level_.GetWorld()
+            ->Step(time_step, velocity_iterations, position_iterations);
         settled = !current_level_.DrawLevel(window);
         // Draw the aiming arrow
         std::tuple<float, float> tuple = current_level_.DrawArrow(window);
+        // Update arrow direction and power
         direction = std::get<0>(tuple);
         power = std::get<1>(tuple);
         if (settled)
