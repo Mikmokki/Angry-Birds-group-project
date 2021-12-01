@@ -101,25 +101,28 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 {
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
-    if (slingshot_center.x - mouse_position.x > 0)
+
+    sf::Vector2f difference = mouse_position - slingshot_center;
+
+    if (difference.x < 0)
     {
         float direction;
-        if (mouse_position.y - slingshot_center.y > 0)
+        if (difference.y > 0)
         {
-            direction = 90 - atan((slingshot_center.x - mouse_position.x) / (mouse_position.y - slingshot_center.y)) * 180 / M_PI; // Tämä kans convertteriks
+            direction = 90 + atan(difference.x / difference.y) * 180 / M_PI; // Tämä kans convertteriks
         }
-        else if (mouse_position.y - slingshot_center.y == 0)
+        else if (difference.y == 0)
         {
             direction = 0;
         }
         else
         {
-            direction = -90 + atan((slingshot_center.x - mouse_position.x) / (slingshot_center.y - mouse_position.y)) * 180 / M_PI;
+            direction = 270 + atan(difference.x / difference.y) * 180 / M_PI;
         }
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(slingshot_center.x - mouse_position.x, 2) + pow(mouse_position.y - slingshot_center.y, 2)), 100.0);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));
