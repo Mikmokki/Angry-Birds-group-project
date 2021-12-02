@@ -116,4 +116,37 @@ The graphics and physics are working. A good amount of features are merged in ma
 2. Take the gmae logic structure into use
 3. Create levels (Level creator?)
 4. Save levels
-5. 
+
+
+
+
+
+# Meeting 2.12.2021 14:00
+
+**Participants**: 
+1. Kalle Kankaanpää
+2. Jaakko Hintsala
+3. Mikko Juusti
+4. Sami Porio
+
+## Summary of works
+1. Main menu graphics, new coordinate converter tools in utils namespace. Debugged code written last week. Resolved an issue with compiling the project. Destructable enemy class added and meged to master.
+
+## Challenges
+
+1. We are still tackling problems regarding level creation and saving.
+
+## Actions
+1. Come up with and create the special action bird, create a simple pig fortress.
+
+## Project status 
+Graphical interface is implemented. The slingshot mechanic with moving camera view is working. Basic game logic class structure has been established.
+
+### TODOs
+1. Create levels (Level creator?)
+2. Save levels
+3. Scoring system
+4. High score system
+5. Player nickname
+6. Different kind of bird
+7. Sound effects
