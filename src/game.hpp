@@ -2,6 +2,7 @@
 #define ANGRY_BIRDS_GAME
 
 #include "level.hpp"
+#include "mainMenu.hpp"
 
 class Game
 {
