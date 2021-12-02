@@ -16,6 +16,7 @@ public:
     Game(){};
     void LoadLevel(std::string filename);
     void Start();
+    // bool AddObject(Object *obj, std::string path = "");
 
 private:
     Level current_level_;
