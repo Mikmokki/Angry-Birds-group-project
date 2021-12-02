@@ -1,7 +1,4 @@
 #include "game.hpp"
-#include <cmath>
-
-//#define M_PI 3.14159265358979323846
 
 void Game::LoadLevel(std::string filename)
 {
@@ -23,7 +20,7 @@ void Game::Start()
     MainMenu menu = MainMenu();
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
-    pauseImage.loadFromFile("../../resources/images/pause.png");
+    pauseImage.loadFromFile("../resources/images/pause.png");
     pause.setTexture(&pauseImage);
 
     bool settled = true; // Is the world in a settled state (nothing is moving)
@@ -37,11 +34,6 @@ void Game::Start()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            float newRes;
-            float oldRes;
-            auto oldCenter = game_view.getCenter();
-            float gameAreaRes = (window.getDefaultView().getSize().x / window.getDefaultView().getSize().y);
-
             switch (event.type)
             {
             case sf::Event::EventType::Closed:
@@ -96,49 +88,29 @@ void Game::Start()
                     break;
                 }
             case sf::Event::EventType::Resized:
-
-                // sfmlWin.setSize(sf::Vector2u(event.size.width, event.size.width * 9 / 16));
-
-                newRes = (1.f * event.size.width) / (1.f * event.size.height);
-
-                oldRes = (game_view.getSize().x / game_view.getSize().y);
-                // oldRes = (gameArea.getSize().x / gameArea.getSize().y);
+                float new_res = (1.f * event.size.width) / (1.f * event.size.height);
+                float game_area_res = (window.getDefaultView().getSize().x / window.getDefaultView().getSize().y);
+                float k;
 
                 sf::Vector2f window_size = window.getDefaultView().getSize();
 
-                if (newRes > oldRes)
+                if (new_res > game_area_res)
                 {
-                    float k = window_size.y / (1.f * event.size.height);
-
-                    game_view.setSize(k * event.size.width, k * event.size.height);
+                    k = window_size.y / (1.f * event.size.height);
                 }
                 else
                 {
-                    float k = window_size.x / (1.f * event.size.width);
-
-                    game_view.setSize(k * event.size.width, k * event.size.height);
+                    k = window_size.x / (1.f * event.size.width);
                 }
 
-                if (newRes > gameAreaRes)
-                {
-                    float k = window_size.y / (1.f * event.size.height);
-
-                    game_view.setSize(k * event.size.width, k * event.size.height);
-                }
-                else
-                {
-                    float k = window_size.x / (1.f * event.size.width);
-
-                    game_view.setSize(k * event.size.width, k * event.size.height);
-                }
-
+                game_view.setSize(k * event.size.width, k * event.size.height);
                 game_view.setCenter(window.getDefaultView().getSize() * 0.5f);
                 break;
             }
         }
+        window.clear(sf::Color::White);
         if (menu.IsOpen())
         {
-            window.clear(sf::Color::White);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1160 && converted_mouse_position.y >= 220 && converted_mouse_position.y <= 300)
             {
                 menu.Close();
@@ -148,11 +120,9 @@ void Game::Start()
                 window.close();
             }
             menu.Draw(window);
-            window.display();
         }
         else
         {
-            window.clear(sf::Color::White);
             window.setView(game_view);
 
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
@@ -176,9 +146,7 @@ void Game::Start()
 
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));
             window.draw(pause);
-
-            window.display();
         }
-        //window.display();
+        window.display();
     }
 }

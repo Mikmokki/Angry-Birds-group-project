@@ -6,9 +6,9 @@
 MainMenu::MainMenu()
 {
     std::vector<std::string> buttonTexts{"Play", "Level Editor", "High Scores", "Exit"};
-    font_.loadFromFile("../../resources/fonts/Raleway-Medium.ttf");
+    font_.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
     open_ = true;
-    backgroundImage_.loadFromFile("../../resources/images/menu.png");
+    backgroundImage_.loadFromFile("../resources/images/menu.png");
     background_.setSize(sf::Vector2f(1600, 900));
     background_.setTexture(&backgroundImage_);
     background_.setPosition(0, 0);
