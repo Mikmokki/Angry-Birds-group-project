@@ -25,7 +25,11 @@ int main()
     slingshot.setTexture(&slingshotImage);
     slingshot.setPosition(200, 600);
     slingshot.setOrigin(50.0f, 50.0f);
-    sf::Vertex line[2] = {};
+    sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
+    sf::Texture pauseImage;
+    pauseImage.loadFromFile("../resources/images/pause.png");
+    pause.setTexture(&pauseImage);
+    pause.setPosition(0, 0);
 
     sf::RectangleShape gameArea;
     gameArea.setSize(sfmlWin.getDefaultView().getSize());
@@ -37,7 +41,7 @@ int main()
     MainMenu menu = MainMenu();
     while (sfmlWin.isOpen())
     {
-
+        sf::Vector2f pos = sfmlWin.mapPixelToCoords(sf::Mouse::getPosition(sfmlWin));
         sf::Event event;
         while (sfmlWin.pollEvent(event))
         {
@@ -148,8 +152,6 @@ int main()
         if (menu.IsOpen())
         {
             sfmlWin.clear();
-            sf::Vector2f pos = sfmlWin.mapPixelToCoords(sf::Mouse::getPosition(sfmlWin));
-
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && pos.x >= 1006 && pos.x <= 1160 && pos.y >= 220 && pos.y <= 300)
             {
                 menu.Close();
@@ -168,7 +170,7 @@ int main()
         else
         {
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || (sf::Mouse::isButtonPressed(sf::Mouse::Left) && gameArea.getSize().x * 0.5f - gameView.getCenter().x + pos.x < 100 && pos.y < 100))
             {
                 gameView = sfmlWin.getDefaultView();
                 sfmlWin.setView(gameView);
@@ -177,7 +179,7 @@ int main()
             if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
             {
                 bird.setPosition(slingMid.first, slingMid.second);
-                gameView.setCenter(bird.getPosition().x, gameView.getCenter().y);
+                gameView.setCenter(gameArea.getSize() * 0.5f);
             }
             if (bird.getPosition().y > 0)
             {
@@ -186,7 +188,6 @@ int main()
             sfmlWin.clear(sf::Color::Green);
             sfmlWin.draw(gameArea);
             sfmlWin.draw(slingshot);
-            sf::Vector2f pos = sfmlWin.mapPixelToCoords(sf::Mouse::getPosition(sfmlWin));
 
             if (slingMid.first - pos.x > 0)
             {
@@ -235,20 +236,23 @@ int main()
 
                         sfmlWin.clear(sf::Color::Green);
                         bird.move(cos((direction)*M_PI / 180) * length / 100, -sin((direction)*M_PI / 180) * length / 100 + time * gravity);
-                        gameView.setCenter(bird.getPosition().x, gameView.getCenter().y);
+                        gameView.setCenter(std::max(gameArea.getSize().x * 0.5f, bird.getPosition().x), gameView.getCenter().y);
                         sfmlWin.setView(gameView);
                         sfmlWin.draw(gameArea);
                         sfmlWin.draw(slingshot);
                         sfmlWin.draw(bird);
+                        pause.setPosition(gameView.getCenter().x - gameArea.getSize().x * 0.5f, 0);
+                        sfmlWin.draw(pause);
                         sfmlWin.display();
 
                         time++;
                     }
                 }
             }
-
+            pause.setPosition(gameView.getCenter().x - gameArea.getSize().x * 0.5f, 0);
             sfmlWin.setView(gameView);
             sfmlWin.draw(bird);
+            sfmlWin.draw(pause);
             sfmlWin.display();
         }
     }
