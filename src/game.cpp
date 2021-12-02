@@ -1,5 +1,7 @@
 #include "game.hpp"
-#include "math.h"
+#include <cmath>
+
+//#define M_PI 3.14159265358979323846
 
 void Game::LoadLevel(std::string filename)
 {
@@ -21,7 +23,7 @@ void Game::Start()
     MainMenu menu = MainMenu();
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
-    pauseImage.loadFromFile("../resources/images/pause.png");
+    pauseImage.loadFromFile("../../resources/images/pause.png");
     pause.setTexture(&pauseImage);
 
     bool settled = true; // Is the world in a settled state (nothing is moving)
@@ -136,7 +138,7 @@ void Game::Start()
         }
         if (menu.IsOpen())
         {
-            window.clear();
+            window.clear(sf::Color::White);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1160 && converted_mouse_position.y >= 220 && converted_mouse_position.y <= 300)
             {
                 menu.Close();
@@ -177,5 +179,6 @@ void Game::Start()
 
             window.display();
         }
+        //window.display();
     }
 }

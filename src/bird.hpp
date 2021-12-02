@@ -6,12 +6,13 @@
 class Bird : public Object
 {
 public:
-    Bird(b2Body *body) : Object("../resources/images/bird.png", body)
+    Bird(b2Body *body) : Object("../../resources/images/bird.png", body)
     {
         sprite_.setScale(bird_scale_, bird_scale_);
 
         int h = sprite_.getTextureRect().height;
         int w = sprite_.getTextureRect().width;
+
         sprite_.setOrigin(h * bird_scale_ / 2, w * bird_scale_ / 2); // Set origin to center
     };
 

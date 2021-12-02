@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 #include "math.h"
+#define M_PI 3.14159265358979323846
 
 const int viewwidth = 1600;
 const int viewheight = 900;
