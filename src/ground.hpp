@@ -6,7 +6,7 @@
 class Ground : public Object
 {
 public:
-    Ground(b2Body *body) : Object("../resources/ground.png", body)
+    Ground(b2Body *body) : Object("../resources/images/slingshot.png", body)
     {
         texture_.setRepeated(true);
         sprite_.setTextureRect({0, 0, static_cast<int>(10 * scale), static_cast<int>(2 * scale)}); // just hard coded based on Level Constructor
