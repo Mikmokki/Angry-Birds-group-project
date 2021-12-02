@@ -84,15 +84,6 @@ void Level::ResetBird()
     body->SetTransform(bird_starting_position_, 0);
 }
 
-sf::Vector2f toSFVector(b2Vec2 original)
-{
-    return sf::Vector2f(original.x * scale, 800 - (original.y * scale));
-}
-
-b2Vec2 toB2Vector(sf::Vector2f original)
-{
-    return b2Vec2(original.x / scale, 900 - (original.y / scale));
-}
 bool ObjectRemover(Object *obj)
 {
     return obj->IsDestroyed();
@@ -102,7 +93,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 {
     // Draw slingshot
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
-    sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
     sf::Texture slingshot_texture;
     slingshot_texture.loadFromFile("../../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
@@ -151,7 +142,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         b2Body *body = it->GetBody();
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
-        sprite.setPosition(toSFVector(pos));
+        sprite.setPosition(utils::B2ToSfCoords(pos));
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }
@@ -160,7 +151,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     b2Body *body = bird_->GetBody();
     b2Vec2 pos = body->GetPosition();
     sf::Sprite sprite = bird_->GetSprite();
-    sprite.setPosition(toSFVector(pos));
+    sprite.setPosition(utils::B2ToSfCoords(pos));
     window.draw(sprite);
     moving = moving || body->IsAwake();
 
@@ -170,7 +161,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 {
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
 
     sf::Vector2f difference = mouse_position - slingshot_center;
 
