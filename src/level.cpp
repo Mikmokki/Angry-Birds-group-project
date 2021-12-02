@@ -1,5 +1,4 @@
 #include "level.hpp"
-#include "bird.hpp"
 #include "pig.hpp"
 #include "ground.hpp"
 
@@ -69,6 +68,9 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     pigBody->CreateFixture(&pigFixture);
     objects_.push_back(pig_);
 }
+
+// Just a mock constructor which will read the file in the future
+Level::Level(std::ifstream file) : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
@@ -200,5 +202,18 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
     else
     {
         return {0, 0};
+    }
+}
+
+void Level::SaveState(std::ofstream &file)
+{
+    // Write level name to first line
+    file << name_ << std::endl;
+    // Save bird to second line
+    bird_->SaveState(file);
+    // Then save all the other objects
+    for (auto obj : objects_)
+    {
+        obj->SaveState(file);
     }
 }

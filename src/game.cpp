@@ -6,6 +6,34 @@ void Game::LoadLevel(std::string filename)
     current_level_ = Level("Example", bsp);
 }
 
+// Tries to open a file with the provided filename+suffix
+// If there is a file with the name it adds seq number to the filename
+// for example "filename(0).ab"
+std::ofstream Game::OpenFileSafe(const std::string filename)
+{
+    std::stringstream full_filename;
+    full_filename << filename << "." << file_suffix;
+
+    std::ifstream file(full_filename.str());
+    int sequence_number = 0;
+    while (file.good())
+    {
+        full_filename.clear();
+        full_filename.str(""); // Empty the stringstream
+        full_filename << filename << "(" << sequence_number << ")." << file_suffix;
+        file = std::ifstream(full_filename.str());
+        sequence_number++;
+    }
+
+    return std::ofstream(full_filename.str());
+}
+
+void Game::SaveLevel()
+{
+    std::ofstream file = OpenFileSafe("testi");
+    current_level_.SaveState(file);
+}
+
 void Game::Start()
 {
     if (current_level_.GetName() == "")
@@ -18,6 +46,7 @@ void Game::Start()
     sf::View game_view(window.getDefaultView());
 
     MainMenu menu = MainMenu();
+
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
     pauseImage.loadFromFile("../resources/images/pause.png");
@@ -140,8 +169,8 @@ void Game::Start()
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
             sf::Vector2f default_center = window.getDefaultView().getCenter();
 
-            // Reset view when world settles
-            if (!settled || has_just_settled)
+            // Follow bird when thrown
+            if (!settled)
             {
                 // Used std min for the y since sfml coordinates are from top left downwards
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
@@ -159,9 +188,15 @@ void Game::Start()
             // Update arrow direction and power
             direction = std::get<0>(tuple);
             power = std::get<1>(tuple);
+
+            // Reset bird and view when world settles
             if (has_just_settled)
             {
                 current_level_.ResetBird();
+                game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+
+                // Save world to file
+                SaveLevel();
             }
 
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));

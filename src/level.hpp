@@ -3,6 +3,7 @@
 
 #include <string>
 #include <list>
+#include <fstream>
 #include <box2d/box2d.h>
 #include <SFML/Graphics.hpp>
 #include "bird.hpp"
@@ -13,6 +14,7 @@ class Level
 public:
     Level();
     Level(std::string name, b2Vec2 bird_starting_pos);
+    Level(std::ifstream file);
 
     std::string GetName() const
     {
@@ -43,6 +45,8 @@ public:
 
     // Returns { direction, power } of the arrow
     std::tuple<float, float> DrawArrow(sf::RenderWindow &window);
+
+    void SaveState(std::ofstream &file);
 
 private:
     std::string name_;

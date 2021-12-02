@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 
 class Object
@@ -35,6 +36,8 @@ public:
         if (destructable_)
             destroyed = true;
     }
+
+    void SaveState(std::ofstream &file){}; // Mock implementation
 
 protected:
     sf::Sprite sprite_;
