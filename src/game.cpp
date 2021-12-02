@@ -23,9 +23,10 @@ void Game::Start()
     pauseImage.loadFromFile("../resources/images/pause.png");
     pause.setTexture(&pauseImage);
 
-    bool settled = true; // Is the world in a settled state (nothing is moving)
-    float direction = 0; // Direction of the aiming arrow in degrees
-    float power = 0;     // Power of the aiming arrow (0-100)
+    bool settled = true;          // Is the world in a settled state (nothing is moving)
+    bool has_just_settled = true; // Has the world just settled
+    float direction = 0;          // Direction of the aiming arrow in degrees
+    float power = 0;              // Power of the aiming arrow (0-100)
 
     while (window.isOpen())
     {
@@ -50,7 +51,7 @@ void Game::Start()
                         window.setView(game_view);
                         menu.Open();
                     }
-                    else if (settled && !menu.IsOpen())
+                    else if (settled && !menu.IsOpen() && power != 0)
                     {
                         //Shoot bird
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
@@ -60,51 +61,62 @@ void Game::Start()
                 }
                 break;
 
-            case sf::Event::EventType::KeyPressed:
+            case sf::Event::EventType::Resized:
+            {
+                float width = static_cast<float>(event.size.width);
+                float height = static_cast<float>(event.size.height);
+                float aspect_ratio = width / height;
+                sf::View default_view = window.getDefaultView();
+                sf::Vector2f default_size = default_view.getSize();
+                float default_aspect_ratio = default_size.x / default_size.y;
+                float k;
 
+                if (aspect_ratio > default_aspect_ratio)
+                {
+                    k = default_size.y / height;
+                }
+                else
+                {
+                    k = default_size.x / width;
+                }
+
+                game_view.setSize(k * width, k * height);
+                game_view.setCenter(default_view.getCenter());
+                break;
+            }
+
+            case sf::Event::EventType::KeyPressed:
                 switch (event.key.code)
                 {
                 case sf::Keyboard::Up:
-                    game_view.move(0, -10);
+                    if (settled)
+                        game_view.move(0, -10);
                     break;
 
                 case sf::Keyboard::Down:
-                    game_view.move(0, 10);
+                    if (settled)
+                        game_view.move(0, 10);
                     break;
 
                 case sf::Keyboard::Left:
-                    game_view.move(-10, 0);
+                    if (settled)
+                        game_view.move(-10, 0);
                     break;
 
                 case sf::Keyboard::Right:
-                    game_view.move(10, 0);
+                    if (settled)
+                        game_view.move(10, 0);
                     break;
+
                 case sf::Keyboard::Escape:
                     game_view = window.getDefaultView();
                     window.setView(game_view);
                     menu.Open();
+                    break;
 
                 default:
                     break;
                 }
-            case sf::Event::EventType::Resized:
-                float new_res = (1.f * event.size.width) / (1.f * event.size.height);
-                float game_area_res = (window.getDefaultView().getSize().x / window.getDefaultView().getSize().y);
-                float k;
-
-                sf::Vector2f window_size = window.getDefaultView().getSize();
-
-                if (new_res > game_area_res)
-                {
-                    k = window_size.y / (1.f * event.size.height);
-                }
-                else
-                {
-                    k = window_size.x / (1.f * event.size.width);
-                }
-
-                game_view.setSize(k * event.size.width, k * event.size.height);
-                game_view.setCenter(window.getDefaultView().getSize() * 0.5f);
                 break;
             }
         }
@@ -128,18 +140,26 @@ void Game::Start()
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
             sf::Vector2f default_center = window.getDefaultView().getCenter();
 
-            // Used std min for the y since sfml coordinates are from top left downwards
-            game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+            // Reset view when world settles
+            if (!settled || has_just_settled)
+            {
+                // Used std min for the y since sfml coordinates are from top left downwards
+                game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+            }
 
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
+
+            bool prev_settled = settled;
             settled = !current_level_.DrawLevel(window);
+            has_just_settled = settled && !prev_settled;
             // Draw the aiming arrow
-            std::tuple<float, float> tuple = current_level_.DrawArrow(window);
+            std::tuple<float, float>
+                tuple = current_level_.DrawArrow(window);
             // Update arrow direction and power
             direction = std::get<0>(tuple);
             power = std::get<1>(tuple);
-            if (settled)
+            if (has_just_settled)
             {
                 current_level_.ResetBird();
             }
