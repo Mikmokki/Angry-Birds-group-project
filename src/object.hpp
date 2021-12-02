@@ -24,12 +24,27 @@ public:
 
     sf::Sprite &GetSprite() { return sprite_; }
 
+    bool IsDestructable() { return destructable_; }
+
+    float GetDThreshold() { return destructionThreshold; }
+
+    bool IsDestroyed() const { return destroyed; }
+
+    void TryToDestroy()
+    {
+        if (destructable_)
+            destroyed = true;
+    }
+
 protected:
     sf::Sprite sprite_;
     sf::Texture texture_;
+    bool destructable_ = false;
+    float destructionThreshold = 0;
 
 private:
     b2Body *body_;
+    bool destroyed = false;
 };
 
 #endif // ANGRY_BIRDS_OBJECT

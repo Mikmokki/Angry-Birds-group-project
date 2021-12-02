@@ -1,6 +1,8 @@
 #include "game.hpp"
 #include "math.h"
 
+#define M_PI 3.14159265358979323846
+
 sf::Vector2f toSFVector_(b2Vec2 original)
 {
     return sf::Vector2f(original.x * scale, 800 - (original.y * scale));

@@ -1,7 +1,11 @@
 #include "level.hpp"
 #include "bird.hpp"
+#include "pig.hpp"
 #include "ground.hpp"
+
 #include "math.h"
+
+#define M_PI 3.14159265358979323846
 
 Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
@@ -12,10 +16,19 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     b2BodyDef groundBodyDef;
     groundBodyDef.position.Set(0.0f, -10.0f);
     b2Body *groundBody = world_->CreateBody(&groundBodyDef);
-    objects_.push_back(new Ground(groundBody));
+
+    Object *gObj = new Ground(groundBody);
+
+    groundBodyDef.userData;
+    objects_.push_back(gObj);
     b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
-    groundBody->CreateFixture(&groundBox, 0.0f);
+    b2FixtureDef def;
+    def.shape = &groundBox;
+    def.density = 0.0f;
+    def.userData.pointer = reinterpret_cast<uintptr_t>(gObj);
+    groundBody->CreateFixture(&def);
+
     // Create the bird object
     b2BodyDef birdDef;
     birdDef.type = b2_dynamicBody;
@@ -27,15 +40,38 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     bird_ = new Bird(body);
 
     b2CircleShape birdShape;
-    birdShape.m_radius = 0.3;
+    birdShape.m_radius = 0.3f;
 
     b2FixtureDef birdFixture;
     birdFixture.shape = &birdShape;
     birdFixture.density = 1.0f;
     birdFixture.friction = 1.0f;
     birdFixture.restitution = 0.4f;
+    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(bird_);
 
     body->CreateFixture(&birdFixture);
+
+    b2BodyDef pigBodyDef;
+
+    pigBodyDef.type = b2_dynamicBody;
+    pigBodyDef.position.Set(5.f, 3.f);
+    pigBodyDef.linearDamping = 0.5f;
+
+    b2Body *pigBody = world_->CreateBody(&pigBodyDef);
+    Object *pig_ = new Pig(pigBody);
+
+    b2CircleShape pigShape;
+    pigShape.m_radius = 0.3f;
+
+    b2FixtureDef pigFixture;
+    pigFixture.shape = &pigShape;
+    pigFixture.density = 1.0f;
+    pigFixture.friction = 1.0f;
+    pigFixture.restitution = 0.4f;
+    pigFixture.userData.pointer = reinterpret_cast<uintptr_t>(pig_);
+
+    pigBody->CreateFixture(&pigFixture);
+    objects_.push_back(pig_);
 }
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
@@ -61,6 +97,10 @@ b2Vec2 toB2Vector(sf::Vector2f original)
 {
     return b2Vec2(original.x / scale, 900 - (original.y / scale));
 }
+bool ObjectRemover(Object *obj)
+{
+    return obj->IsDestroyed();
+}
 
 bool Level::DrawLevel(sf::RenderWindow &window)
 {
@@ -68,11 +108,46 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
     sf::Texture slingshot_texture;
-    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
+    slingshot_texture.loadFromFile("../../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
     slingshot.setOrigin(50, 50);
     slingshot.setPosition(slingshot_center);
     window.draw(slingshot);
+
+    for (b2ContactEdge *ce = bird_->GetBody()->GetContactList(); ce; ce = ce->next)
+    {
+
+        b2Contact *c = ce->contact;
+
+        Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
+        Object *objB = reinterpret_cast<Object *>(c->GetFixtureB()->GetUserData().pointer);
+
+        objA->TryToDestroy();
+
+        objB->TryToDestroy();
+    }
+
+    /* for (b2Body *bPtr = world_->GetBodyList(); bPtr; bPtr = bPtr++)
+    {
+        Object *obj = reinterpret_cast<Object *>(bPtr->GetFixtureList()->GetUserData().pointer);
+
+        if (obj->IsDestroyed())
+        {
+            world_->DestroyBody(bPtr);
+        }
+    } */
+
+    for (auto ob : objects_)
+    {
+
+        if (ob->IsDestroyed())
+        {
+
+            world_->DestroyBody(ob->GetBody());
+        }
+    }
+
+    objects_.remove_if(ObjectRemover);
 
     // Draw box2d objects
     bool moving = false;
@@ -122,7 +197,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0f);
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));
