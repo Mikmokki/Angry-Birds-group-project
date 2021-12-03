@@ -27,7 +27,6 @@ void Game::Start()
     bool has_just_settled = true; // Has the world just settled
     float direction = 0;          // Direction of the aiming arrow in degrees
     float power = 0;              // Power of the aiming arrow (0-100)
-
     while (window.isOpen())
     {
         sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
@@ -41,6 +40,7 @@ void Game::Start()
                 window.close();
                 break;
             case sf::Event::EventType::MouseButtonPressed:
+
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     sf::Vector2f pause_position = pause.getPosition();
@@ -53,11 +53,15 @@ void Game::Start()
                     }
                     else if (settled && !menu.IsOpen() && power != 0)
                     {
-                        //Shoot bird
+                        // Shoot bird
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
                         current_level_.ThrowBird(0, b2Vec2(x, y));
                     }
+                }
+                else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+                {
+                   current_level_.GetBird()->NewPower();
                 }
                 break;
 
@@ -135,8 +139,9 @@ void Game::Start()
         }
         else
         {
-            window.setView(game_view);
 
+            window.setView(game_view);
+            current_level_.GetBird()->UsePower();
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
             sf::Vector2f default_center = window.getDefaultView().getCenter();
 
@@ -146,7 +151,7 @@ void Game::Start()
                 // Used std min for the y since sfml coordinates are from top left downwards
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
             }
-
+            
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
 
@@ -163,7 +168,7 @@ void Game::Start()
             {
                 current_level_.ResetBird();
             }
-
+            
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));
             window.draw(pause);
         }

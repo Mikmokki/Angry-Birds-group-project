@@ -29,7 +29,7 @@ public:
         return objects_;
     }
 
-    Object *GetBird()
+    Bird *GetBird()
     {
         return bird_;
     }

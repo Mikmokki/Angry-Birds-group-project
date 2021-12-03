@@ -3,6 +3,10 @@
 #include "pig.hpp"
 #include "ground.hpp"
 
+#include "math.h"
+
+#define M_PI 3.14159265358979323846f
+
 Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
 Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_starting_position_(bird_starting_pos)
@@ -33,7 +37,7 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
     b2Body *body = world_->CreateBody(&birdDef);
-    bird_ = new Bird(body);
+    bird_ = new SpeedBird(body);
 
     b2CircleShape birdShape;
     birdShape.m_radius = 0.3f;
@@ -84,6 +88,15 @@ void Level::ResetBird()
     body->SetTransform(bird_starting_position_, 0);
 }
 
+sf::Vector2f toSFVector(b2Vec2 original)
+{
+    return sf::Vector2f(original.x * scale, 800 - (original.y * scale));
+}
+
+b2Vec2 toB2Vector(sf::Vector2f original)
+{
+    return b2Vec2(original.x / scale, 900 - (original.y / scale));
+}
 bool ObjectRemover(Object *obj)
 {
     return obj->IsDestroyed();
@@ -93,7 +106,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 {
     // Draw slingshot
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
-    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
+    sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
     sf::Texture slingshot_texture;
     slingshot_texture.loadFromFile("../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
@@ -142,7 +155,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         b2Body *body = it->GetBody();
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
-        sprite.setPosition(utils::B2ToSfCoords(pos));
+        sprite.setPosition(toSFVector(pos));
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }
@@ -151,7 +164,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     b2Body *body = bird_->GetBody();
     b2Vec2 pos = body->GetPosition();
     sf::Sprite sprite = bird_->GetSprite();
-    sprite.setPosition(utils::B2ToSfCoords(pos));
+    sprite.setPosition(toSFVector(pos));
     window.draw(sprite);
     moving = moving || body->IsAwake();
 
@@ -161,7 +174,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 {
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
+    sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
 
     sf::Vector2f difference = mouse_position - slingshot_center;
 
@@ -170,7 +183,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
         float direction;
         if (difference.y > 0)
         {
-            direction = 90 + utils::RadiansToDegrees(atan(difference.x / difference.y));
+            direction = 90 + atan(difference.x / difference.y) * 180 / M_PI; // Tämä kans convertteriks
         }
         else if (difference.y == 0)
         {
@@ -178,12 +191,12 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
         }
         else
         {
-            direction = 270 + utils::RadiansToDegrees(atan(difference.x / difference.y));
+            direction = 270 + atan(difference.x / difference.y) * 180 / M_PI;
         }
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), static_cast<double>(100.0));
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));

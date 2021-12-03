@@ -43,7 +43,3 @@ void MainMenu::Open()
 {
     open_ = true;
 }
-
-MainMenu::~MainMenu(){
-
-};

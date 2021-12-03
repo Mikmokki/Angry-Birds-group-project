@@ -19,12 +19,16 @@ public:
     };
 
     Object(b2Body *body) : body_(body){};
+    
+    virtual ~Object() {}
 
     b2Body *GetBody() { return body_; }
 
     sf::Sprite &GetSprite() { return sprite_; }
 
     bool IsDestructable() { return destructable_; }
+
+    virtual void UsePower(){};
 
     float GetDThreshold() { return destructionThreshold; }
 
