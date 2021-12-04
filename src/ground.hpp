@@ -13,6 +13,8 @@ public:
         sprite_.setOrigin(0, 900 - (-10 * scale));
     };
 
+    virtual char GetType() { return 'G'; };
+
 private:
 };
 

@@ -10,16 +10,9 @@
 class Object
 {
 public:
-    Object(std::string texture_file, b2Body *body) : body_(body)
-    {
-        if (!texture_.loadFromFile(texture_file))
-        {
-            std::cout << "Texture loading failed" << std::endl; // maybe should throw an error
-        }
-        sprite_.setTexture(texture_);
-    };
+    Object(std::string texture_file, b2Body *body);
 
-    Object(b2Body *body) : body_(body){};
+    Object(b2Body *body);
 
     b2Body *GetBody() { return body_; }
 
@@ -37,7 +30,10 @@ public:
             destroyed = true;
     }
 
-    void SaveState(std::ofstream &file){}; // Mock implementation
+    void SaveState(std::ofstream &file);
+
+    // Get type of the object (for serialization purposes)
+    virtual char GetType() = 0;
 
 protected:
     sf::Sprite sprite_;

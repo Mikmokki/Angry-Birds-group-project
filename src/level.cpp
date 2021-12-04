@@ -69,8 +69,128 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     objects_.push_back(pig_);
 }
 
-// Just a mock constructor which will read the file in the future
-Level::Level(std::ifstream file) : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
+std::istream &operator>>(std::istream &input, b2Vec2 &vector)
+{
+    float x, y;
+    char _;
+    input.ignore();       // Ingnore "("
+    input >> x >> _ >> y; // Read the coordinates
+    if (input)
+    {
+        vector.Set(x, y);
+    }
+    else
+    {
+        input.clear((input.rdstate() & ~std::ios::goodbit) | std::ios::failbit);
+    }
+
+    input.ignore(); // Ignore ")"
+
+    return input;
+}
+
+std::istream &operator>>(std::istream &input, b2BodyType &type)
+{
+    int body_type;
+    input >> body_type;
+    if (input)
+    {
+        switch (body_type)
+        {
+        case 0:
+            type = b2_staticBody;
+            break;
+        case 1:
+            type = b2_kinematicBody;
+            break;
+        case 2:
+            type = b2_dynamicBody;
+            break;
+        }
+    }
+    else
+    {
+        input.clear((input.rdstate() & ~std::ios::goodbit) | std::ios::failbit);
+    }
+
+    return input;
+}
+
+Level::Level(std::ifstream &file)
+{
+    if (file.rdstate() & (file.failbit | file.badbit))
+    {
+        // output error to stderr stream
+        std::cerr
+            << "Failed" << std::endl;
+    }
+    else
+    {
+        // Read level name from the first line
+        if (!file.eof())
+        {
+            std::string name;
+            std::getline(file, name);
+            name_ = name;
+        }
+
+        world_ = new b2World(gravity);
+        bird_starting_position_ = b2Vec2(3, 3); // This might get removed
+
+        // repeat until end of file
+        while (!file.eof())
+        {
+            // read a line from file
+            std::string l;
+            std::getline(file, l);
+            std::stringstream line(l);
+
+            char obj_type;
+            file.get(obj_type);
+            file.ignore(); // Ignore the following separator
+
+            char _; // character dump
+            // Read the body definition
+            b2BodyDef body_def;
+
+            b2Vec2 position, linear_velocity;
+            b2BodyType body_type;
+            float angle, angular_velocity, angular_damping, linear_damping, gravity_scale;
+            bool is_awake;
+            file >> position >> _ >> angle >> _ >> angular_velocity >> _ >> linear_velocity >> _ >> angular_damping >> _ >> linear_damping >> _ >> gravity_scale >> _ >> body_type >> _ >> is_awake >> _;
+
+            body_def.position = position;
+            body_def.angle = angle;
+            body_def.angularVelocity = angular_velocity;
+            body_def.linearVelocity = linear_velocity;
+            body_def.angularDamping = angular_damping;
+            body_def.linearDamping = linear_damping;
+            body_def.gravityScale = gravity_scale;
+            body_def.type = body_type;
+            body_def.awake = is_awake;
+
+            std::string tmp;
+            // Read fixtures
+            std::getline(file, tmp, '\n');
+            std::cout << "tmp" << tmp << std::endl;
+
+            switch (obj_type)
+            {
+            case 'B':
+                break;
+            case 'G':
+                break;
+            case 'P':
+                break;
+            default:
+                // Unknown type skip row
+                continue;
+            }
+
+            std::cout << line.str() << std::endl;
+        }
+    }
+}
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
@@ -211,9 +331,11 @@ void Level::SaveState(std::ofstream &file)
     file << name_ << std::endl;
     // Save bird to second line
     bird_->SaveState(file);
+    file << std::endl;
     // Then save all the other objects
     for (auto obj : objects_)
     {
         obj->SaveState(file);
+        file << std::endl;
     }
 }

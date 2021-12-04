@@ -16,6 +16,8 @@ public:
         sprite_.setOrigin(h * bird_scale_ / 2, w * bird_scale_ / 2); // Set origin to center
     };
 
+    virtual char GetType() { return 'B'; };
+
 private:
     const float bird_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
 };

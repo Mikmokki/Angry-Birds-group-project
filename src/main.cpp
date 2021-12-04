@@ -5,7 +5,7 @@ int main()
 {
 
     Game game = Game();
-    game.LoadLevel("");
+    game.LoadLevel("testi.ab");
     game.Start();
 
     return 0;

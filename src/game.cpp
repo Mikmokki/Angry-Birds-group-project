@@ -3,7 +3,18 @@
 void Game::LoadLevel(std::string filename)
 {
     b2Vec2 bsp(3.0f, 3.0f);
-    current_level_ = Level("Example", bsp);
+    current_level_ = Level("Testi level", bsp);
+    /*
+    std::ifstream file(filename);
+    if (file.rdstate() & (file.failbit | file.badbit))
+    {
+        std::cerr << "Level loading failed for file: " << filename << std::endl;
+    }
+    else
+    {
+        current_level_ = Level(file);
+    }
+    */
 }
 
 // Tries to open a file with the provided filename+suffix
@@ -193,6 +204,8 @@ void Game::Start()
             if (has_just_settled)
             {
                 current_level_.ResetBird();
+                // Update bird_position after reset
+                bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
 
                 // Save world to file

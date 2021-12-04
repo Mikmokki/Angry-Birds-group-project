@@ -17,6 +17,8 @@ public:
         destructable_ = true;
     };
 
+    virtual char GetType() { return 'P'; };
+
 private:
     const float pig_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
 };
