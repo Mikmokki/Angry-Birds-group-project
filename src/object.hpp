@@ -2,6 +2,7 @@
 #define ANGRY_BIRDS_OBJECT
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <box2d/box2d.h>
 #include <iostream>
 #include <string>
@@ -35,6 +36,8 @@ public:
         if (destructable_)
             destroyed = true;
     }
+
+    void MakeSound() { return; }
 
 protected:
     sf::Sprite sprite_;
