@@ -14,7 +14,7 @@ class Level
 {
 public:
     Level();
-    Level(std::string name, b2Vec2 bird_starting_pos);
+    Level(std::string name);
     Level(std::ifstream &file);
 
     std::string GetName() const
@@ -51,7 +51,6 @@ public:
 
 private:
     std::string name_;
-    b2Vec2 bird_starting_position_;
     Bird *bird_;
     b2World *world_;
     std::list<Object *> objects_;

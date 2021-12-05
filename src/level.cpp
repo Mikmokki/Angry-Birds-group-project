@@ -2,9 +2,9 @@
 #include "pig.hpp"
 #include "ground.hpp"
 
-Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
+Level::Level() : name_("") {}
 
-Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_starting_position_(bird_starting_pos)
+Level::Level(std::string name) : name_(name)
 {
     world_ = new b2World(gravity);
     // Creating ground box
@@ -27,7 +27,7 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     // Create the bird object
     b2BodyDef birdDef;
     birdDef.type = b2_dynamicBody;
-    birdDef.position = bird_starting_position_;
+    birdDef.position = bird_starting_position;
     birdDef.linearDamping = 0.5f; // This could be constant and should be adjusted
     birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
@@ -116,55 +116,6 @@ std::istream &operator>>(std::istream &input, b2BodyType &type)
     return input;
 }
 
-b2FixtureDef ReadFixtureDef(std::stringstream &def)
-{
-    b2FixtureDef fixture_def;
-
-    char _; // character dump
-    int shape_type;
-    def >> shape_type >> _;
-    switch (shape_type)
-    {
-    case b2Shape::Type::e_circle:
-    {
-        b2CircleShape circle;
-        def >> circle.m_p >> _ >> circle.m_radius >> _;
-        fixture_def.shape = &circle;
-        break;
-    }
-    case b2Shape::Type::e_polygon:
-    {
-        b2PolygonShape polygon;
-        def >> polygon.m_centroid >> _;
-
-        for (int i = 0; i < 8; i++)
-        {
-            b2Vec2 vertex;
-            def >> vertex >> _;
-            polygon.m_vertices[i] = vertex; // Update array in place since c++ only supports array copying with memcpy
-        }
-        for (int i = 0; i < 8; i++)
-        {
-            b2Vec2 normal;
-            def >> normal >> _;
-            polygon.m_normals[i] = normal;
-        }
-
-        def >> polygon.m_count >> _ >> polygon.m_radius >> _;
-
-        fixture_def.shape = &polygon;
-        break;
-    }
-    default:
-        std::cerr << "Reading level file failed, unknown shape on a fixture" << std::endl;
-        break;
-    }
-
-    def >> fixture_def.density >> _ >> fixture_def.friction >> _ >> fixture_def.restitution >> _;
-
-    return fixture_def;
-}
-
 Level::Level(std::ifstream &file)
 {
     if (file.rdstate() & (file.failbit | file.badbit))
@@ -184,7 +135,6 @@ Level::Level(std::ifstream &file)
         }
 
         world_ = new b2World(gravity);
-        bird_starting_position_ = b2Vec2(3, 3); // This might get removed
 
         // repeat until end of file
         while (!file.eof())
@@ -307,7 +257,7 @@ void Level::ResetBird()
 {
     b2Body *body = bird_->GetBody();
     body->SetGravityScale(0);
-    body->SetTransform(bird_starting_position_, 0);
+    body->SetTransform(bird_starting_position, 0);
 }
 
 bool ObjectRemover(Object *obj)
@@ -319,7 +269,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 {
     // Draw slingshot
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
-    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
     sf::Texture slingshot_texture;
     slingshot_texture.loadFromFile("../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
@@ -387,7 +337,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 {
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
 
     sf::Vector2f difference = mouse_position - slingshot_center;
 
