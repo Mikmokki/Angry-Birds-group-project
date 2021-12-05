@@ -156,7 +156,7 @@ b2FixtureDef ReadFixtureDef(std::stringstream &def)
         break;
     }
     default:
-        std::cerr << "Can't read Level file, unknown shape on a fixture" << std::endl;
+        std::cerr << "Reading level file failed, unknown shape on a fixture" << std::endl;
         break;
     }
 
@@ -189,14 +189,6 @@ Level::Level(std::ifstream &file)
         // repeat until end of file
         while (!file.eof())
         {
-            // read a line from file
-            /*
-            std::string l;
-            std::getline(file, l);
-            std::stringstream line(l);
-
-            std::cout << "line: " << l << std::endl;
-            */
 
             char obj_type;
             file.get(obj_type);
@@ -267,14 +259,11 @@ Level::Level(std::ifstream &file)
                 break;
             }
             default:
-                std::cerr << "Can't read Level file, unknown shape on a fixture" << std::endl;
+                std::cerr << "Reading Level file failed, unknown shape on a fixture" << std::endl;
                 break;
             }
 
             fixture >> fixture_def.density >> _ >> fixture_def.friction >> _ >> fixture_def.restitution >> _;
-
-            //b2FixtureDef fixture_def = ReadFixtureDef(fixture);
-            // Add object pointer to fixture!!!!
 
             switch (obj_type)
             {
@@ -302,9 +291,7 @@ Level::Level(std::ifstream &file)
                 // Unknown type skip row
                 continue;
             }
-            std::cout << "create fixture" << std::endl;
             body->CreateFixture(&fixture_def);
-            std::cout << "Line read" << std::endl;
         }
     }
 }
