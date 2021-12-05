@@ -3,9 +3,7 @@
 #include "pig.hpp"
 #include "ground.hpp"
 #include <algorithm>
-#include "math.h"
 #include <iostream>
-#define M_PI 3.14159265358979323846f
 
 Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
@@ -191,7 +189,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
         float direction;
         if (difference.y > 0)
         {
-            direction = 90 + atan(difference.x / difference.y) * 180 / M_PI; // Tämä kans convertteriks
+            direction = 90 + utils::RadiansToDegrees(atan(difference.x / difference.y));
         }
         else if (difference.y == 0)
         {
@@ -199,7 +197,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
         }
         else
         {
-            direction = 270 + atan(difference.x / difference.y) * 180 / M_PI;
+            direction = 270 + utils::RadiansToDegrees(atan(difference.x / difference.y));
         }
 
         float rotation = -direction;
