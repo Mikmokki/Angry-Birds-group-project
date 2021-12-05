@@ -43,6 +43,8 @@ public:
 
     void ResetBird();
 
+    bool IsLevelEnded() { return level_ended_; }
+
     // Returns true if world hasn't settled yet
     bool DrawLevel(sf::RenderWindow &window);
 
@@ -55,7 +57,8 @@ private:
     std::list<Bird *> birds_;
     b2World *world_;
     std::list<Object *> objects_;
-    int score_ =0;
+    int score_ = 0;
+    bool level_ended_ = false;
 };
 
 #endif // ANGRY_BIRDS_LEVEL
