@@ -81,27 +81,22 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
-    // if (birds_.size() == 0)
-    // {
-    //     level_ended_ = true;
-    // }
-    // if (!IsLevelEnded())
-    // {
+     if (birds_.size() == 0)
+     {
+         level_ended_ = true;
+     }
+     if (!IsLevelEnded())
+     {
     b2Body *body = GetBird()->GetBody();
     body->SetGravityScale(1);
     body->ApplyLinearImpulseToCenter(velocity, true);
     GetBird()->Throw();
-    // }
+     }
 }
 bool level_set_up = false; // at the beginning ResetBird is called once when level is ready.
 void Level::ResetBird()
 {
-    // if (birds_.size() == 0)
-    // {
-    //     level_ended_ = true;
-    // }
-    // else
-    // {
+
     if (level_set_up)
     {
         birds_.pop_front();
@@ -116,7 +111,6 @@ void Level::ResetBird()
         body->SetGravityScale(0);
         body->SetTransform(bird_starting_position_, 0);
     }
-    // }
 }
 
 sf::Vector2f toSFVector(b2Vec2 original)
@@ -135,12 +129,7 @@ bool ObjectRemover(Object *obj)
 
 bool Level::DrawLevel(sf::RenderWindow &window)
 {
-    // if (birds_.size() == 0)
-    // {
-    //     level_ended_ = true;
-    // }
-    // if (!level_ended_)
-    // {
+
     // Draw slingshot
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = toSFVector(bird_starting_position_);
@@ -161,11 +150,8 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
         Object *objB = reinterpret_cast<Object *>(c->GetFixtureB()->GetUserData().pointer);
 
-        std::cout << GetScore() << std::endl;
         score_ = score_ + objA->TryToDestroy();
-        std::cout << GetScore() << std::endl;
         score_ = score_ + objB->TryToDestroy();
-        std::cout << GetScore() << std::endl;
     }
 
     /* for (b2Body *bPtr = world_->GetBodyList(); bPtr; bPtr = bPtr++)
@@ -192,7 +178,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         !IsLevelEnded())
     {
         level_ended_ = true;
-        score_ = score_ + (birds_.size()-1) * 1000;
+        score_ = score_ + (birds_.size() - 1) * 1000;
     }
     // Draw box2d objects
     bool moving = false;
@@ -206,20 +192,14 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         moving = moving || body->IsAwake();
     }
 
-    // Draw bird
-    // if (!IsLevelEnded())
-    // {
     b2Body *body = GetBird()->GetBody();
     b2Vec2 pos = body->GetPosition();
     sf::Sprite sprite = GetBird()->GetSprite();
     sprite.setPosition(toSFVector(pos));
     window.draw(sprite);
     moving = moving || body->IsAwake();
-    // }
     return moving;
-    // }
-    // else
-    //     return false;
+    
 }
 
 std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)

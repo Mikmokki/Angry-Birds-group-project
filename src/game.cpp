@@ -29,7 +29,6 @@ void Game::Start()
     float power = 0;              // Power of the aiming arrow (0-100)
     while (window.isOpen())
     {
-        // std::cout << current_level_.IsLevelEnded() << std::endl;
         sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
         sf::Vector2f converted_mouse_position = window.mapPixelToCoords(mouse_position);
         sf::Event event;
@@ -141,8 +140,6 @@ void Game::Start()
         {
 
             window.setView(game_view);
-            // if (current_level_.IsLevelEnded())
-            // {
             current_level_.GetBird()->UsePower();
 
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
@@ -154,7 +151,7 @@ void Game::Start()
                 // Used std min for the y since sfml coordinates are from top left downwards
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
             }
-            // }
+          
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
 
