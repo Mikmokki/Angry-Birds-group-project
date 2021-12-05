@@ -138,13 +138,17 @@ void Game::Start()
         window.clear(sf::Color::White);
         if (menu.IsOpen())
         {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
+            level_selector.Open();
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                menu.Close();
-            }
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
-            {
-                window.close();
+                if (mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
+                {
+                    menu.Close();
+                }
+                else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
+                {
+                    window.close();
+                }
             }
             menu.Draw(window);
         }
