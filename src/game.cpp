@@ -158,19 +158,19 @@ void Game::Start()
             {
                 if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 700 && mouse_position.y <= 780)
                 {
-                    LoadLevel("level1.ab");
+                    LoadLevel("../resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 700 && mouse_position.y <= 780)
                 {
-                    LoadLevel("level2.ab");
+                    LoadLevel("../resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 700 && mouse_position.y <= 780)
                 {
-                    LoadLevel("level3.ab");
+                    LoadLevel("../resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
                     level_selector.Close();
                 }
