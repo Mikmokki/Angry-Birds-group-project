@@ -98,7 +98,7 @@ Level::Level(std::ifstream &file)
             // Read the body definition
             b2BodyDef body_def;
 
-            file >> body_def.position >> _ >> body_def.angle >> _ >> body_def.angularVelocity >> _ >> body_def.linearVelocity >> _ >> body_def.angularDamping >> _ >> body_def.linearDamping >> _ >> body_def.gravityScale >> _ >> body_def.type >> _ >> body_def.isAwake >> _;
+            file >> body_def.position >> _ >> body_def.angle >> _ >> body_def.angularVelocity >> _ >> body_def.linearVelocity >> _ >> body_def.angularDamping >> _ >> body_def.linearDamping >> _ >> body_def.gravityScale >> _ >> body_def.type >> _ >> body_def.awake >> _;
 
             b2Body *body = world_->CreateBody(&body_def);
 

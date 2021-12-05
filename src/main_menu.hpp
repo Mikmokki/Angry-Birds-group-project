@@ -1,6 +1,7 @@
 #ifndef ANGRY_BIRDS_MENU
 #define ANGRY_BIRDS_MENU
 #include <SFML/Graphics.hpp>
+#include "converters.hpp"
 
 class MainMenu
 {

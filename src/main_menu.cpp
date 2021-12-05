@@ -1,4 +1,4 @@
-#include "mainMenu.hpp"
+#include "main_menu.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
@@ -9,7 +9,7 @@ MainMenu::MainMenu()
     font_.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
     open_ = true;
     backgroundImage_.loadFromFile("../resources/images/menu.png");
-    background_.setSize(sf::Vector2f(1600, 900));
+    background_.setSize(sf::Vector2f(viewwidth, viewheight));
     background_.setTexture(&backgroundImage_);
     background_.setPosition(0, 0);
     for (int i = 0; i < 4; ++i)
@@ -44,6 +44,4 @@ void MainMenu::Open()
     open_ = true;
 }
 
-MainMenu::~MainMenu(){
-
-};
+MainMenu::~MainMenu(){};

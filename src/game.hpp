@@ -2,7 +2,7 @@
 #define ANGRY_BIRDS_GAME
 
 #include "level.hpp"
-#include "mainMenu.hpp"
+#include "main_menu.hpp"
 #include <fstream>
 #include <sstream>
 
