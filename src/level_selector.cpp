@@ -15,7 +15,7 @@ LevelSelector::LevelSelector()
         level_names_[i].setFillColor(sf::Color::White);
         level_names_[i].setString(name_texts[i]);
         level_names_[i].setCharacterSize(80);
-        level_names_[i].setPosition(50 + i * 500, 500);
+        level_names_[i].setPosition(100 + i * 500, 700);
     }
 }
 

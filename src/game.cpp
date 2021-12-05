@@ -2,8 +2,6 @@
 
 void Game::LoadLevel(std::string filename)
 {
-    b2Vec2 bsp(3.0f, 3.0f);
-    //current_level_ = Level("Testi level", bsp);
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
     {
@@ -15,31 +13,9 @@ void Game::LoadLevel(std::string filename)
     }
 }
 
-// Tries to open a file with the provided filename+suffix
-// If there is a file with the name it adds seq number to the filename
-// for example "filename(0).ab"
-std::ofstream Game::OpenFileSafe(const std::string filename)
-{
-    std::stringstream full_filename;
-    full_filename << filename << "." << file_suffix;
-
-    std::ifstream file(full_filename.str());
-    int sequence_number = 0;
-    while (file.good())
-    {
-        full_filename.clear();
-        full_filename.str(""); // Empty the stringstream
-        full_filename << filename << "(" << sequence_number << ")." << file_suffix;
-        file = std::ifstream(full_filename.str());
-        sequence_number++;
-    }
-
-    return std::ofstream(full_filename.str());
-}
-
 void Game::SaveLevel()
 {
-    std::ofstream file = OpenFileSafe("testi");
+    std::ofstream file = utils::OpenFileSafe("testi");
     current_level_.SaveState(file);
 }
 
@@ -56,6 +32,8 @@ void Game::Start()
 
     MainMenu menu = MainMenu();
 
+    LevelSelector level_selector = LevelSelector();
+
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
     pauseImage.loadFromFile("../resources/images/pause.png");
@@ -68,8 +46,7 @@ void Game::Start()
 
     while (window.isOpen())
     {
-        sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
-        sf::Vector2f converted_mouse_position = window.mapPixelToCoords(mouse_position);
+        sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -82,7 +59,7 @@ void Game::Start()
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     sf::Vector2f pause_position = pause.getPosition();
-                    if (converted_mouse_position.x < pause_position.x + 100 && converted_mouse_position.y < pause_position.y + 100)
+                    if (mouse_position.x < pause_position.x + 100 && mouse_position.y < pause_position.y + 100)
                     {
 
                         game_view = window.getDefaultView();
@@ -161,15 +138,40 @@ void Game::Start()
         window.clear(sf::Color::White);
         if (menu.IsOpen())
         {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1160 && converted_mouse_position.y >= 220 && converted_mouse_position.y <= 300)
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
             {
                 menu.Close();
             }
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1136 && converted_mouse_position.y >= 520 && converted_mouse_position.y <= 580)
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
             {
                 window.close();
             }
             menu.Draw(window);
+        }
+        else if (level_selector.IsOpen())
+        {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 700 && mouse_position.y <= 780)
+                {
+                    LoadLevel("level1.ab");
+                    std::cout << "Loaded level 1" << std::endl;
+                    level_selector.Close();
+                }
+                else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 700 && mouse_position.y <= 780)
+                {
+                    LoadLevel("level2.ab");
+                    std::cout << "Loaded level 2" << std::endl;
+                    level_selector.Close();
+                }
+                else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 700 && mouse_position.y <= 780)
+                {
+                    LoadLevel("level3.ab");
+                    std::cout << "Loaded level 3" << std::endl;
+                    level_selector.Close();
+                }
+            }
+            level_selector.Draw(window);
         }
         else
         {
@@ -207,7 +209,7 @@ void Game::Start()
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
 
                 // Save world to file
-                SaveLevel();
+                //SaveLevel();
             }
 
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));

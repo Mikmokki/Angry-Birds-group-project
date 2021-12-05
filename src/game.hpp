@@ -3,8 +3,10 @@
 
 #include "level.hpp"
 #include "main_menu.hpp"
+#include "level_selector.hpp"
 #include <fstream>
 #include <sstream>
+#include "utils.hpp"
 
 class Game
 {
@@ -17,7 +19,6 @@ public:
 private:
     std::ofstream OpenFileSafe(const std::string filename);
     Level current_level_;
-    const std::string file_suffix = "ab"; // ab as in Angry Birds
 };
 
 #endif // ANGRY_BIRDS_GAME

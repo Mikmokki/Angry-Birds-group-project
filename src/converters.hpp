@@ -15,6 +15,7 @@ const int position_iterations = 2;
 const b2Vec2 gravity(0.0f, -9.8f);
 const float scale = 100.0f;
 const b2Vec2 bird_starting_position(3, 3);
+const std::string file_suffix = "ab"; // ab as in Angry Birds
 
 namespace utils
 {
