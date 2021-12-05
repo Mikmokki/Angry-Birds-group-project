@@ -10,7 +10,7 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     world_ = new b2World(gravity);
     // Creating ground box
     b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, -10.0f);
+    groundBodyDef.position.Set(0.0f, 0.0f);
     b2Body *groundBody = world_->CreateBody(&groundBodyDef);
 
     Object *gObj = new Ground(groundBody);
@@ -18,10 +18,12 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     groundBodyDef.userData;
     objects_.push_back(gObj);
     b2PolygonShape groundBox;
-    groundBox.SetAsBox(50.0f, 10.0f);
+    groundBox.SetAsBox(50.0f, 1.0f);
+
     b2FixtureDef def;
     def.shape = &groundBox;
     def.density = 0.0f;
+
     def.userData.pointer = reinterpret_cast<uintptr_t>(gObj);
     groundBody->CreateFixture(&def);
 
@@ -75,6 +77,7 @@ void Level::ThrowBird(int angle, b2Vec2 velocity)
     b2Body *body = bird_->GetBody();
     body->SetGravityScale(1);
     body->ApplyLinearImpulseToCenter(velocity, true);
+    bird_->MakeSound();
 }
 
 void Level::ResetBird()
@@ -92,10 +95,15 @@ bool ObjectRemover(Object *obj)
 bool Level::DrawLevel(sf::RenderWindow &window)
 {
     // Draw slingshot
+    sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
+    peliAlue.setFillColor(sf::Color::Blue);
+    window.draw(peliAlue);
+
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
+    slingshot.setFillColor(sf::Color::Cyan);
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
     sf::Texture slingshot_texture;
-    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
+    slingshot_texture.loadFromFile("../../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
     slingshot.setOrigin(50, 50);
     slingshot.setPosition(slingshot_center);
@@ -183,7 +191,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0f);
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));

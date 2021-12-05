@@ -6,7 +6,7 @@
 class Pig : public Object
 {
 public:
-    Pig(b2Body *body) : Object("../resources/images/possu.png", body)
+    Pig(b2Body *body) : Object("../../resources/images/possu.png", body)
     {
         sprite_.setScale(pig_scale_, pig_scale_);
 
