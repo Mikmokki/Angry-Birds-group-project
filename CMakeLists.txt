@@ -38,6 +38,6 @@ target_link_libraries(angry_birds sfml-graphics sfml-audio sfml-network sfml-sys
 if(WIN32)
     # Copy openal dynamic lib to build folder in order to get sounds working
     file(COPY_FILE libs/SFML/extlibs/bin/x64/openal32.dll "${CMAKE_BINARY_DIR}/openal32.dll")
-endif
+endif()
 
 target_include_directories(angry_birds PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/libs")
