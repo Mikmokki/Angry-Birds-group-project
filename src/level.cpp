@@ -74,8 +74,7 @@ Level::Level(std::ifstream &file)
 {
     if (file.rdstate() & (file.failbit | file.badbit))
     {
-        // output error to stderr stream
-        std::cerr << "Failed" << std::endl;
+        std::cerr << "Failed" << std::endl; // output error to stderr stream
     }
     else
     {
@@ -89,10 +88,8 @@ Level::Level(std::ifstream &file)
 
         world_ = new b2World(gravity);
 
-        // repeat until end of file
         while (!file.eof())
         {
-
             char obj_type;
             file.get(obj_type);
             file.ignore(); // Ignore the following separator
@@ -101,21 +98,7 @@ Level::Level(std::ifstream &file)
             // Read the body definition
             b2BodyDef body_def;
 
-            b2Vec2 position, linear_velocity;
-            b2BodyType body_type;
-            float angle, angular_velocity, angular_damping, linear_damping, gravity_scale;
-            bool is_awake;
-            file >> position >> _ >> angle >> _ >> angular_velocity >> _ >> linear_velocity >> _ >> angular_damping >> _ >> linear_damping >> _ >> gravity_scale >> _ >> body_type >> _ >> is_awake >> _;
-
-            body_def.position = position;
-            body_def.angle = angle;
-            body_def.angularVelocity = angular_velocity;
-            body_def.linearVelocity = linear_velocity;
-            body_def.angularDamping = angular_damping;
-            body_def.linearDamping = linear_damping;
-            body_def.gravityScale = gravity_scale;
-            body_def.type = body_type;
-            body_def.awake = is_awake;
+            file >> body_def.position >> _ >> body_def.angle >> _ >> body_def.angularVelocity >> _ >> body_def.linearVelocity >> _ >> body_def.angularDamping >> _ >> body_def.linearDamping >> _ >> body_def.gravityScale >> _ >> body_def.type >> _ >> body_def.isAwake >> _;
 
             b2Body *body = world_->CreateBody(&body_def);
 
