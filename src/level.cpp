@@ -37,7 +37,12 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
     b2Body *body = world_->CreateBody(&birdDef);
-    bird_ = new SpeedBird(body);
+    Bird *bird1 = new BoomerangBird(body);
+    Bird *bird2 = new SpeedBird(body);
+    Bird *bird3 = new DroppingBird(body);
+    birds_.push_back(bird1);
+    birds_.push_back(bird2);
+    birds_.push_back(bird3);
 
     b2CircleShape birdShape;
     birdShape.m_radius = 0.3f;
@@ -47,7 +52,7 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     birdFixture.density = 1.0f;
     birdFixture.friction = 1.0f;
     birdFixture.restitution = 0.4f;
-    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(bird_);
+    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(GetBird());
 
     body->CreateFixture(&birdFixture);
 
@@ -76,14 +81,23 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
-    b2Body *body = bird_->GetBody();
+    b2Body *body = GetBird()->GetBody();
     body->SetGravityScale(1);
     body->ApplyLinearImpulseToCenter(velocity, true);
+    GetBird()->Throw();
 }
-
+bool level_set_up = false; // at the beginning ResetBird is called once when level is ready.
 void Level::ResetBird()
 {
-    b2Body *body = bird_->GetBody();
+    if (level_set_up)
+    {
+        birds_.pop_front();
+    }
+    else
+    {
+        level_set_up = true;
+    }
+    b2Body *body = GetBird()->GetBody();
     body->SetGravityScale(0);
     body->SetTransform(bird_starting_position_, 0);
 }
@@ -114,7 +128,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     slingshot.setPosition(slingshot_center);
     window.draw(slingshot);
 
-    for (b2ContactEdge *ce = bird_->GetBody()->GetContactList(); ce; ce = ce->next)
+    for (b2ContactEdge *ce = GetBird()->GetBody()->GetContactList(); ce; ce = ce->next)
     {
 
         b2Contact *c = ce->contact;
@@ -124,8 +138,11 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
         Object *objB = reinterpret_cast<Object *>(c->GetFixtureB()->GetUserData().pointer);
 
-        objA->TryToDestroy();
-        objB->TryToDestroy();
+            std::cout << GetScore() << std::endl;
+        score_ = score_ + objA->TryToDestroy();
+         std::cout << GetScore() << std::endl;
+        score_ = score_ + objB->TryToDestroy();
+         std::cout << GetScore() << std::endl;
     }
 
     /* for (b2Body *bPtr = world_->GetBodyList(); bPtr; bPtr = bPtr++)
@@ -161,9 +178,9 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     }
 
     // Draw bird
-    b2Body *body = bird_->GetBody();
+    b2Body *body = GetBird()->GetBody();
     b2Vec2 pos = body->GetPosition();
-    sf::Sprite sprite = bird_->GetSprite();
+    sf::Sprite sprite = GetBird()->GetSprite();
     sprite.setPosition(toSFVector(pos));
     window.draw(sprite);
     moving = moving || body->IsAwake();

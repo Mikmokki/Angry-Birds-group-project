@@ -19,7 +19,7 @@ public:
     };
 
     Object(b2Body *body) : body_(body){};
-    
+
     virtual ~Object() {}
 
     b2Body *GetBody() { return body_; }
@@ -30,21 +30,26 @@ public:
 
     virtual void UsePower(){};
 
-    float GetDThreshold() { return destructionThreshold; }
+    float GetDThreshold() { return destruction_threshold_; }
 
     bool IsDestroyed() const { return destroyed; }
 
-    void TryToDestroy()
+    int TryToDestroy()
     {
         if (destructable_)
+        {
             destroyed = true;
+            return destruction_points_;
+        }
+        return 0;
     }
 
 protected:
     sf::Sprite sprite_;
     sf::Texture texture_;
     bool destructable_ = false;
-    float destructionThreshold = 0;
+    float destruction_threshold_ = 0;
+    int destruction_points_ = 100;
 
 private:
     b2Body *body_;

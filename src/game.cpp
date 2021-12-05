@@ -51,17 +51,16 @@ void Game::Start()
                         window.setView(game_view);
                         menu.Open();
                     }
+                    else if (current_level_.GetBird()->IsThrown())
+                    {
+                        current_level_.GetBird()->NewPower();
+                    }
                     else if (settled && !menu.IsOpen() && power != 0)
                     {
-                        // Shoot bird
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
                         current_level_.ThrowBird(0, b2Vec2(x, y));
                     }
-                }
-                else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-                {
-                   current_level_.GetBird()->NewPower();
                 }
                 break;
 
@@ -151,7 +150,7 @@ void Game::Start()
                 // Used std min for the y since sfml coordinates are from top left downwards
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
             }
-            
+
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
 
@@ -168,7 +167,6 @@ void Game::Start()
             {
                 current_level_.ResetBird();
             }
-            
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));
             window.draw(pause);
         }

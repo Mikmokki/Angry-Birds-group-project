@@ -15,7 +15,14 @@ public:
 
         sprite_.setOrigin(h * bird_scale_ / 2, w * bird_scale_ / 2); // Set origin to center
     };
-
+    void Throw()
+    {
+        thrown_ = true;
+    }
+    bool IsThrown()
+    {
+        return thrown_;
+    }
     void NewPower()
     {
         if (!power_used)
@@ -32,6 +39,7 @@ protected:
     int power_left_ = 0;
     b2Body *body_;
     bool power_used = false;
+    bool thrown_ = false;
 };
 
 class BoomerangBird : public Bird
@@ -68,7 +76,7 @@ public:
     SpeedBird(b2Body *body) : Bird(body, "../resources/images/bird3.png"){};
     virtual void UsePower()
     {
-        if (power_left_ >= max_power_ - 1)
+        if (power_left_ >= max_power_ - 2)
         {
             power_left_--;
             body_->SetLinearVelocity(body_->GetLinearVelocity() + body_->GetLinearVelocity());

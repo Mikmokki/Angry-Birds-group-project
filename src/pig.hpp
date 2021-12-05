@@ -13,7 +13,7 @@ public:
         int h = sprite_.getTextureRect().height;
         int w = sprite_.getTextureRect().width;
         sprite_.setOrigin(h * pig_scale_ / 2, w * pig_scale_ / 2); // Set origin to center
-
+        destruction_points_ = 500;
         destructable_ = true;
     };
 
