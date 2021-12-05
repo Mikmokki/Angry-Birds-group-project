@@ -1,4 +1,5 @@
 #include "object.hpp"
+#include "utils.hpp"
 
 Object::Object(std::string texture_file, b2Body *body) : body_(body)
 {
@@ -10,12 +11,6 @@ Object::Object(std::string texture_file, b2Body *body) : body_(body)
 }
 
 Object::Object(b2Body *body) : body_(body){};
-
-std::ostream &operator<<(std::ostream &out, const b2Vec2 &vector)
-{
-    out << "(" << vector.x << ":" << vector.y << ")";
-    return out;
-}
 
 void Object::SaveState(std::ofstream &file)
 {
@@ -41,12 +36,6 @@ void Object::SaveState(std::ofstream &file)
             circle = static_cast<b2CircleShape *>(shape_data);
             file << circle->m_p << s << circle->m_radius << s;
             break;
-        /* Skip edge shapes for now, since we are not using those
-        case b2Shape::Type::e_edge:
-            b2EdgeShape *edge = static_cast<b2EdgeShape *>(shape_data);
-            file << edge;
-            break;
-            */
         case b2Shape::Type::e_polygon:
             b2PolygonShape *polygon;
             polygon = static_cast<b2PolygonShape *>(shape_data);
@@ -61,11 +50,6 @@ void Object::SaveState(std::ofstream &file)
             }
             file << polygon->m_count << s << polygon->m_radius << s;
             break;
-        /* Skip Chain since we are not using those
-        case b2Shape::Type::e_chain:
-            b2ChainShape *chain = static_cast<b2ChainShape *>(shape_data);
-            break;
-            */
         default:
             std::cout << "Unknown type for shape" << std::endl;
             continue;

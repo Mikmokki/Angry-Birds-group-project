@@ -1,6 +1,7 @@
 #include "level.hpp"
 #include "pig.hpp"
 #include "ground.hpp"
+#include "utils.hpp"
 
 Level::Level() : name_("") {}
 
@@ -69,60 +70,12 @@ Level::Level(std::string name) : name_(name)
     objects_.push_back(pig_);
 }
 
-std::istream &operator>>(std::istream &input, b2Vec2 &vector)
-{
-    float x, y;
-    char _;
-    input.ignore();       // Ingnore "("
-    input >> x >> _ >> y; // Read the coordinates
-    if (input)
-    {
-        vector.Set(x, y);
-    }
-    else
-    {
-        input.clear((input.rdstate() & ~std::ios::goodbit) | std::ios::failbit);
-    }
-
-    input.ignore(); // Ignore ")"
-
-    return input;
-}
-
-std::istream &operator>>(std::istream &input, b2BodyType &type)
-{
-    int body_type;
-    input >> body_type;
-    if (input)
-    {
-        switch (body_type)
-        {
-        case 0:
-            type = b2_staticBody;
-            break;
-        case 1:
-            type = b2_kinematicBody;
-            break;
-        case 2:
-            type = b2_dynamicBody;
-            break;
-        }
-    }
-    else
-    {
-        input.clear((input.rdstate() & ~std::ios::goodbit) | std::ios::failbit);
-    }
-
-    return input;
-}
-
 Level::Level(std::ifstream &file)
 {
     if (file.rdstate() & (file.failbit | file.badbit))
     {
         // output error to stderr stream
-        std::cerr
-            << "Failed" << std::endl;
+        std::cerr << "Failed" << std::endl;
     }
     else
     {
@@ -166,11 +119,10 @@ Level::Level(std::ifstream &file)
 
             b2Body *body = world_->CreateBody(&body_def);
 
-            std::string tmp;
+            std::string fixture_str;
             // Read fixtures
-            std::getline(file, tmp, '\n');
-            std::cout << "tmp" << tmp << std::endl;
-            std::stringstream fixture(tmp);
+            std::getline(file, fixture_str, '\n');
+            std::stringstream fixture(fixture_str);
             b2FixtureDef fixture_def;
 
             int shape_type;
