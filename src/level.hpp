@@ -7,7 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include "bird.hpp"
 #include "converters.hpp"
-
+#include <iostream>
 class Level
 {
 public:
@@ -29,14 +29,21 @@ public:
         return objects_;
     }
 
-    Object *GetBird()
+    Bird *GetBird()
     {
-        return bird_;
+        return birds_.front();
+    }
+
+    int GetScore()
+    {
+        return score_;
     }
 
     void ThrowBird(int angle, b2Vec2 velocity);
 
     void ResetBird();
+
+    bool IsLevelEnded() { return level_ended_; }
 
     // Returns true if world hasn't settled yet
     bool DrawLevel(sf::RenderWindow &window);
@@ -47,9 +54,11 @@ public:
 private:
     std::string name_;
     b2Vec2 bird_starting_position_;
-    Bird *bird_;
+    std::list<Bird *> birds_;
     b2World *world_;
     std::list<Object *> objects_;
+    int score_ = 0;
+    bool level_ended_ = false;
 };
 
 #endif // ANGRY_BIRDS_LEVEL

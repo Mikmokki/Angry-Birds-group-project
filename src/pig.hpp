@@ -6,14 +6,14 @@
 class Pig : public Object
 {
 public:
-    Pig(b2Body *body) : Object("../../resources/images/possu.png", body)
+    Pig(b2Body *body) : Object("../resources/images/possu.png", body)
     {
         sprite_.setScale(pig_scale_, pig_scale_);
 
         int h = sprite_.getTextureRect().height;
         int w = sprite_.getTextureRect().width;
         sprite_.setOrigin(h * pig_scale_ / 2, w * pig_scale_ / 2); // Set origin to center
-
+        destruction_points_ = 500;
         destructable_ = true;
     };
 

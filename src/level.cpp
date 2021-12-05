@@ -2,6 +2,10 @@
 #include "bird.hpp"
 #include "pig.hpp"
 #include "ground.hpp"
+#include <algorithm>
+#include "math.h"
+#include <iostream>
+#define M_PI 3.14159265358979323846f
 
 Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
@@ -35,7 +39,12 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
     b2Body *body = world_->CreateBody(&birdDef);
-    bird_ = new Bird(body);
+    Bird *bird1 = new BoomerangBird(body);
+    Bird *bird2 = new DroppingBird(body);
+    Bird *bird3 = new SpeedBird(body);
+    birds_.push_back(bird1);
+    birds_.push_back(bird2);
+    birds_.push_back(bird3);
 
     b2CircleShape birdShape;
     birdShape.m_radius = 0.3f;
@@ -45,7 +54,7 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     birdFixture.density = 1.0f;
     birdFixture.friction = 1.0f;
     birdFixture.restitution = 0.4f;
-    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(bird_);
+    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(GetBird());
 
     body->CreateFixture(&birdFixture);
 
@@ -74,15 +83,26 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
-    b2Body *body = bird_->GetBody();
-    body->SetGravityScale(1);
-    body->ApplyLinearImpulseToCenter(velocity, true);
-    bird_->MakeSound();
+    if (birds_.size() == 0)
+    {
+        level_ended_ = true;
+    }
+    if (!IsLevelEnded())
+    {
+        b2Body *body = GetBird()->GetBody();
+        body->SetGravityScale(1);
+        body->ApplyLinearImpulseToCenter(velocity, true);
+        GetBird()->MakeSound();
+        GetBird()->Throw();
+    }
 }
-
 void Level::ResetBird()
 {
-    b2Body *body = bird_->GetBody();
+    if (birds_.size() > 1)
+    {
+        birds_.pop_front();
+    }
+    b2Body *body = GetBird()->GetBody();
     body->SetGravityScale(0);
     body->SetTransform(bird_starting_position_, 0);
 }
@@ -94,6 +114,7 @@ bool ObjectRemover(Object *obj)
 
 bool Level::DrawLevel(sf::RenderWindow &window)
 {
+
     // Draw slingshot
     sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
     peliAlue.setFillColor(sf::Color::Blue);
@@ -103,35 +124,23 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     slingshot.setFillColor(sf::Color::Cyan);
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
     sf::Texture slingshot_texture;
-    slingshot_texture.loadFromFile("../../resources/images/slingshot.png");
+    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
     slingshot.setOrigin(50, 50);
     slingshot.setPosition(slingshot_center);
     window.draw(slingshot);
 
-    for (b2ContactEdge *ce = bird_->GetBody()->GetContactList(); ce; ce = ce->next)
+    for (b2ContactEdge *ce = GetBird()->GetBody()->GetContactList(); ce; ce = ce->next)
     {
 
         b2Contact *c = ce->contact;
 
-        c->GetFixtureA();
-
         Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
         Object *objB = reinterpret_cast<Object *>(c->GetFixtureB()->GetUserData().pointer);
 
-        objA->TryToDestroy();
-        objB->TryToDestroy();
+        score_ = score_ + objA->TryToDestroy();
+        score_ = score_ + objB->TryToDestroy();
     }
-
-    /* for (b2Body *bPtr = world_->GetBodyList(); bPtr; bPtr = bPtr++)
-    {
-        Object *obj = reinterpret_cast<Object *>(bPtr->GetFixtureList()->GetUserData().pointer);
-
-        if (obj->IsDestroyed())
-        {
-            world_->DestroyBody(bPtr);
-        }
-    } */
 
     for (auto ob : objects_)
     {
@@ -142,7 +151,13 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     }
 
     objects_.remove_if(ObjectRemover);
-
+    if (std::all_of(objects_.begin(), objects_.end(), [](Object *obj)
+                    { return !obj->IsDestructable(); }) &&
+        !IsLevelEnded())
+    {
+        level_ended_ = true;
+        score_ = score_ + (birds_.size() - 1) * 1000;
+    }
     // Draw box2d objects
     bool moving = false;
     for (auto it : objects_)
@@ -155,14 +170,12 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         moving = moving || body->IsAwake();
     }
 
-    // Draw bird
-    b2Body *body = bird_->GetBody();
+    b2Body *body = GetBird()->GetBody();
     b2Vec2 pos = body->GetPosition();
-    sf::Sprite sprite = bird_->GetSprite();
+    sf::Sprite sprite = GetBird()->GetSprite();
     sprite.setPosition(utils::B2ToSfCoords(pos));
     window.draw(sprite);
     moving = moving || body->IsAwake();
-
     return moving;
 }
 
@@ -178,7 +191,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
         float direction;
         if (difference.y > 0)
         {
-            direction = 90 + utils::RadiansToDegrees(atan(difference.x / difference.y));
+            direction = 90 + atan(difference.x / difference.y) * 180 / M_PI; // Tämä kans convertteriks
         }
         else if (difference.y == 0)
         {
@@ -186,12 +199,12 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
         }
         else
         {
-            direction = 270 + utils::RadiansToDegrees(atan(difference.x / difference.y));
+            direction = 270 + atan(difference.x / difference.y) * 180 / M_PI;
         }
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0f);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));

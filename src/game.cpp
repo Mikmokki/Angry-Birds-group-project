@@ -23,13 +23,13 @@ void Game::Start()
     MainMenu menu = MainMenu();
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
-    pauseImage.loadFromFile("../../resources/images/pause.png");
+    pauseImage.loadFromFile("../resources/images/pause.png");
     pause.setTexture(&pauseImage);
 
     bool settled = true; // Is the world in a settled state (nothing is moving)
     float direction = 0; // Direction of the aiming arrow in degrees
     float power = 0;     // Power of the aiming arrow (0-100)
-
+    bool request_new_bird = false;
     while (window.isOpen())
     {
         sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
@@ -48,6 +48,7 @@ void Game::Start()
                 window.close();
                 break;
             case sf::Event::EventType::MouseButtonPressed:
+
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     sf::Vector2f pause_position = pause.getPosition();
@@ -58,12 +59,16 @@ void Game::Start()
                         window.setView(game_view);
                         menu.Open();
                     }
-                    else if (settled && !menu.IsOpen())
+                    else if (current_level_.GetBird()->IsThrown())
                     {
-                        //Shoot bird
+                        current_level_.GetBird()->NewPower();
+                    }
+                    else if (settled && !menu.IsOpen() && power != 0)
+                    {
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
                         current_level_.ThrowBird(0, b2Vec2(x, y));
+                        request_new_bird = true;
                     }
                 }
                 break;
@@ -154,12 +159,17 @@ void Game::Start()
         {
             window.clear(sf::Color::White);
             window.setView(game_view);
+            current_level_.GetBird()->UsePower();
 
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
             sf::Vector2f default_center = window.getDefaultView().getCenter();
 
-            // Used std min for the y since sfml coordinates are from top left downwards
-            game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+            // Reset view when world settles
+            if (!settled)
+            {
+                // Used std min for the y since sfml coordinates are from top left downwards
+                game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+            }
 
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
@@ -169,9 +179,10 @@ void Game::Start()
             // Update arrow direction and power
             direction = std::get<0>(tuple);
             power = std::get<1>(tuple);
-            if (settled)
+            if (settled && request_new_bird && current_level_.GetBird())
             {
                 current_level_.ResetBird();
+                request_new_bird = false;
             }
 
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));
