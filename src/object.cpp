@@ -31,8 +31,6 @@ void Object::SaveState(std::ofstream &file)
     b2Fixture *fixture = body_->GetFixtureList();
     while (fixture != nullptr)
     {
-        // Wrap fixtures in {}
-        file << '{';
         b2Shape::Type shape_type = fixture->GetType();
         b2Shape *shape_data = fixture->GetShape();
         file << shape_type << s;
@@ -52,18 +50,16 @@ void Object::SaveState(std::ofstream &file)
         case b2Shape::Type::e_polygon:
             b2PolygonShape *polygon;
             polygon = static_cast<b2PolygonShape *>(shape_data);
-            file << polygon->m_centroid << "[";
+            file << polygon->m_centroid;
             for (auto vertex : polygon->m_vertices)
             {
                 file << vertex << s;
             }
-            file << "][";
             for (auto normal : polygon->m_normals)
             {
                 file << normal << s;
             }
-            file << "]";
-            file << polygon->m_count << s << polygon->m_radius;
+            file << polygon->m_count << s << polygon->m_radius << s;
             break;
         /* Skip Chain since we are not using those
         case b2Shape::Type::e_chain:
@@ -75,7 +71,6 @@ void Object::SaveState(std::ofstream &file)
             continue;
         }
         file << fixture->GetDensity() << s << fixture->GetFriction() << s << fixture->GetRestitution() << s;
-        file << '}' << s;
         fixture = fixture->GetNext();
     }
 }

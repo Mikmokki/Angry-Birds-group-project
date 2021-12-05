@@ -116,6 +116,55 @@ std::istream &operator>>(std::istream &input, b2BodyType &type)
     return input;
 }
 
+b2FixtureDef ReadFixtureDef(std::stringstream &def)
+{
+    b2FixtureDef fixture_def;
+
+    char _; // character dump
+    int shape_type;
+    def >> shape_type >> _;
+    switch (shape_type)
+    {
+    case b2Shape::Type::e_circle:
+    {
+        b2CircleShape circle;
+        def >> circle.m_p >> _ >> circle.m_radius >> _;
+        fixture_def.shape = &circle;
+        break;
+    }
+    case b2Shape::Type::e_polygon:
+    {
+        b2PolygonShape polygon;
+        def >> polygon.m_centroid >> _;
+
+        for (int i = 0; i < 8; i++)
+        {
+            b2Vec2 vertex;
+            def >> vertex >> _;
+            polygon.m_vertices[i] = vertex; // Update array in place since c++ only supports array copying with memcpy
+        }
+        for (int i = 0; i < 8; i++)
+        {
+            b2Vec2 normal;
+            def >> normal >> _;
+            polygon.m_normals[i] = normal;
+        }
+
+        def >> polygon.m_count >> _ >> polygon.m_radius >> _;
+
+        fixture_def.shape = &polygon;
+        break;
+    }
+    default:
+        std::cerr << "Can't read Level file, unknown shape on a fixture" << std::endl;
+        break;
+    }
+
+    def >> fixture_def.density >> _ >> fixture_def.friction >> _ >> fixture_def.restitution >> _;
+
+    return fixture_def;
+}
+
 Level::Level(std::ifstream &file)
 {
     if (file.rdstate() & (file.failbit | file.badbit))
@@ -141,9 +190,13 @@ Level::Level(std::ifstream &file)
         while (!file.eof())
         {
             // read a line from file
+            /*
             std::string l;
             std::getline(file, l);
             std::stringstream line(l);
+
+            std::cout << "line: " << l << std::endl;
+            */
 
             char obj_type;
             file.get(obj_type);
@@ -169,25 +222,89 @@ Level::Level(std::ifstream &file)
             body_def.type = body_type;
             body_def.awake = is_awake;
 
+            b2Body *body = world_->CreateBody(&body_def);
+
             std::string tmp;
             // Read fixtures
             std::getline(file, tmp, '\n');
             std::cout << "tmp" << tmp << std::endl;
+            std::stringstream fixture(tmp);
+            b2FixtureDef fixture_def;
+
+            int shape_type;
+            fixture >> shape_type >> _;
+            // The shapes need to live in the outer scope here so the fixture can see them
+            b2CircleShape circle;
+            b2PolygonShape polygon;
+            switch (shape_type)
+            {
+            case b2Shape::Type::e_circle:
+            {
+                fixture >> circle.m_p >> _ >> circle.m_radius >> _;
+                fixture_def.shape = &circle;
+                break;
+            }
+            case b2Shape::Type::e_polygon:
+            {
+                fixture >> polygon.m_centroid >> _;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    b2Vec2 vertex;
+                    fixture >> vertex >> _;
+                    polygon.m_vertices[i] = vertex; // Update array in place since c++ only supports array copying with memcpy
+                }
+                for (int i = 0; i < 8; i++)
+                {
+                    b2Vec2 normal;
+                    fixture >> normal >> _;
+                    polygon.m_normals[i] = normal;
+                }
+
+                fixture >> polygon.m_count >> _ >> polygon.m_radius >> _;
+
+                fixture_def.shape = &polygon;
+                break;
+            }
+            default:
+                std::cerr << "Can't read Level file, unknown shape on a fixture" << std::endl;
+                break;
+            }
+
+            fixture >> fixture_def.density >> _ >> fixture_def.friction >> _ >> fixture_def.restitution >> _;
+
+            //b2FixtureDef fixture_def = ReadFixtureDef(fixture);
+            // Add object pointer to fixture!!!!
 
             switch (obj_type)
             {
             case 'B':
+            {
+                bird_ = new Bird(body);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(bird_);
                 break;
+            }
             case 'G':
+            {
+                Ground *g = new Ground(body);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(g);
+                objects_.push_back(g);
                 break;
+            }
             case 'P':
+            {
+                Pig *p = new Pig(body);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(p);
+                objects_.push_back(p);
                 break;
+            }
             default:
                 // Unknown type skip row
                 continue;
             }
-
-            std::cout << line.str() << std::endl;
+            std::cout << "create fixture" << std::endl;
+            body->CreateFixture(&fixture_def);
+            std::cout << "Line read" << std::endl;
         }
     }
 }

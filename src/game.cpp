@@ -3,8 +3,7 @@
 void Game::LoadLevel(std::string filename)
 {
     b2Vec2 bsp(3.0f, 3.0f);
-    current_level_ = Level("Testi level", bsp);
-    /*
+    //current_level_ = Level("Testi level", bsp);
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
     {
@@ -14,7 +13,6 @@ void Game::LoadLevel(std::string filename)
     {
         current_level_ = Level(file);
     }
-    */
 }
 
 // Tries to open a file with the provided filename+suffix
