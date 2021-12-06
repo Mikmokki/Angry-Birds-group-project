@@ -83,7 +83,6 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     pigBody->CreateFixture(&pigFixture);
     objects_.push_back(pig_);
 
-
     b2BodyDef wall_body_def;
     wall_body_def.type = b2_dynamicBody;
     wall_body_def.position.Set(10.f, 5.f);
@@ -193,6 +192,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
         sprite.setPosition(utils::B2ToSfCoords(pos));
+        sprite.setRotation(utils::RadiansToDegrees(body->GetAngle()));
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }
@@ -201,6 +201,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     b2Vec2 pos = body->GetPosition();
     sf::Sprite sprite = GetBird()->GetSprite();
     sprite.setPosition(utils::B2ToSfCoords(pos));
+    sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
     window.draw(sprite);
     moving = moving || body->IsAwake();
     return moving;

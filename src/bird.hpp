@@ -77,7 +77,7 @@ public:
 class DroppingBird : public Bird
 {
 public:
-    DroppingBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird2_2.png", b2_r){};
+    DroppingBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird2.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ > 0)
