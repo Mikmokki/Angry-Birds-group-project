@@ -2,6 +2,7 @@
 #define ANGRY_BIRDS_OBJECT
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <box2d/box2d.h>
 #include <iostream>
 #include <fstream>
@@ -14,20 +15,28 @@ public:
 
     Object(b2Body *body);
 
+    virtual ~Object() {}
+
     b2Body *GetBody() { return body_; }
 
     sf::Sprite &GetSprite() { return sprite_; }
 
     bool IsDestructable() { return destructable_; }
 
-    float GetDThreshold() { return destructionThreshold; }
+    virtual void UsePower(){};
+
+    float GetDThreshold() { return destruction_threshold_; }
 
     bool IsDestroyed() const { return destroyed; }
 
-    void TryToDestroy()
+    int TryToDestroy()
     {
         if (destructable_)
+        {
             destroyed = true;
+            return destruction_points_;
+        }
+        return 0;
     }
 
     void SaveState(std::ofstream &file);
@@ -35,11 +44,14 @@ public:
     // Get type of the object (for serialization purposes)
     virtual char GetType() = 0;
 
+    void MakeSound() { return; }
+
 protected:
     sf::Sprite sprite_;
     sf::Texture texture_;
     bool destructable_ = false;
-    float destructionThreshold = 0;
+    float destruction_threshold_ = 0;
+    int destruction_points_ = 100;
 
 private:
     b2Body *body_;

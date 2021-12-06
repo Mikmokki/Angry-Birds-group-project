@@ -9,7 +9,7 @@ public:
     MainMenu();
     void Draw(sf::RenderWindow &window);
     bool IsOpen();
-    ~MainMenu();
+    virtual ~MainMenu(){};
     void Close();
     void Open();
 

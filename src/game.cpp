@@ -39,11 +39,10 @@ void Game::Start()
     pauseImage.loadFromFile("../resources/images/pause.png");
     pause.setTexture(&pauseImage);
 
-    bool settled = true;          // Is the world in a settled state (nothing is moving)
-    bool has_just_settled = true; // Has the world just settled
-    float direction = 0;          // Direction of the aiming arrow in degrees
-    float power = 0;              // Power of the aiming arrow (0-100)
-
+    bool settled = false;            // Is the world in a settled state (nothing is moving)
+    bool has_just_settled = settled; // Has the world settled on the previous simulation step
+    float direction = 0;             // Direction of the aiming arrow in degrees
+    float power = 0;                 // Power of the aiming arrow (0-100)
     while (window.isOpen())
     {
         sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -56,6 +55,7 @@ void Game::Start()
                 window.close();
                 break;
             case sf::Event::EventType::MouseButtonPressed:
+
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     sf::Vector2f pause_position = pause.getPosition();
@@ -66,16 +66,18 @@ void Game::Start()
                         window.setView(game_view);
                         menu.Open();
                     }
+                    else if (current_level_.GetBird()->IsThrown())
+                    {
+                        current_level_.GetBird()->NewPower();
+                    }
                     else if (settled && !menu.IsOpen() && power != 0)
                     {
-                        //Shoot bird
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
                         current_level_.ThrowBird(0, b2Vec2(x, y));
                     }
                 }
                 break;
-
             case sf::Event::EventType::Resized:
             {
                 float width = static_cast<float>(event.size.width);
@@ -99,8 +101,8 @@ void Game::Start()
                 game_view.setCenter(default_view.getCenter());
                 break;
             }
-
             case sf::Event::EventType::KeyPressed:
+
                 switch (event.key.code)
                 {
                 case sf::Keyboard::Up:
@@ -122,7 +124,6 @@ void Game::Start()
                     if (settled)
                         game_view.move(10, 0);
                     break;
-
                 case sf::Keyboard::Escape:
                     game_view = window.getDefaultView();
                     window.setView(game_view);
@@ -132,7 +133,6 @@ void Game::Start()
                 default:
                     break;
                 }
-                break;
             }
         }
         window.clear(sf::Color::White);
@@ -180,6 +180,7 @@ void Game::Start()
         else
         {
             window.setView(game_view);
+            current_level_.GetBird()->UsePower();
 
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
             sf::Vector2f default_center = window.getDefaultView().getCenter();
@@ -193,19 +194,17 @@ void Game::Start()
 
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
-
             bool prev_settled = settled;
             settled = !current_level_.DrawLevel(window);
             has_just_settled = settled && !prev_settled;
             // Draw the aiming arrow
-            std::tuple<float, float>
-                tuple = current_level_.DrawArrow(window);
+            std::tuple<float, float> tuple = current_level_.DrawArrow(window);
             // Update arrow direction and power
             direction = std::get<0>(tuple);
             power = std::get<1>(tuple);
-
-            // Reset bird and view when world settles
-            if (has_just_settled)
+            bool bird_has_been_thrown = current_level_.GetBird()->IsThrown();
+            // Reset the bird and view when world settles after a throw
+            if (has_just_settled && bird_has_been_thrown && current_level_.GetBird())
             {
                 current_level_.ResetBird();
                 // Update bird_position after reset
