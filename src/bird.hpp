@@ -44,10 +44,8 @@ public:
     {
         if (!power_used)
         {
-            std::cout << "Setting up the power to be used" << std::endl;
             power_used = true;
             power_left_ = max_power_;
-            std::cout << "Power setup done!" << std::endl;
         }
     }
     virtual void UsePower(){};
