@@ -2,6 +2,7 @@
 
 void Game::LoadLevel(std::string filename)
 {
+    //current_level_ = Level("Level 1");
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
     {
@@ -212,7 +213,7 @@ void Game::Start()
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
 
                 // Save world to file
-                //SaveLevel();
+                // SaveLevel();
             }
 
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));

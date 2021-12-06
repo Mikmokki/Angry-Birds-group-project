@@ -48,7 +48,7 @@ public:
         }
     }
     virtual void UsePower(){};
-    virtual char GetType() { return 'B'; };
+    virtual char GetType() = 0;
 
 protected:
     const float bird_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
@@ -74,7 +74,7 @@ public:
             body_->SetLinearVelocity(body_->GetLinearVelocity() - b2Vec2(0.5, 0.5));
         }
     };
-    virtual char GetType() { return 'X'; };
+    virtual char GetType() { return 'B'; };
 };
 
 class DroppingBird : public Bird

@@ -95,6 +95,10 @@ Level::Level(std::ifstream &file)
             name_ = name;
         }
 
+        // Get bird list from second line
+        std::string bird_list;
+        std::getline(file, bird_list);
+
         world_ = new b2World(gravity);
 
         while (!file.eof())
@@ -162,10 +166,30 @@ Level::Level(std::ifstream &file)
             switch (obj_type)
             {
             case 'B':
+            case 'D':
+            case 'S':
             {
-                BoomerangBird *bird = new BoomerangBird(body);
-                birds_.push_back(bird);
-                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(bird);
+                for (auto type : bird_list)
+                {
+                    Bird *bird;
+                    switch (type)
+                    {
+                    case 'B':
+                        bird = new BoomerangBird(body);
+                        break;
+                    case 'D':
+                        bird = new DroppingBird(body);
+                        break;
+                    case 'S':
+                        bird = new SpeedBird(body);
+                        break;
+                    default:
+                        // Unknown bird
+                        continue;
+                    }
+                    birds_.push_back(bird);
+                    fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(bird);
+                }
                 break;
             }
             case 'G':
@@ -186,6 +210,7 @@ Level::Level(std::ifstream &file)
                 // Unknown type skip row
                 continue;
             }
+
             body->CreateFixture(&fixture_def);
         }
     }
@@ -337,6 +362,12 @@ void Level::SaveState(std::ofstream &file)
 {
     // Write level name to first line
     file << name_ << std::endl;
+    // Save available birds on the second line
+    for (auto bird : birds_)
+    {
+        file << bird->GetType();
+    }
+    file << std::endl;
     // Save bird to second line
     GetBird()->SaveState(file);
     file << std::endl;
