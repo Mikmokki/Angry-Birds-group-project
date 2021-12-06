@@ -6,6 +6,7 @@
 #include <box2d/box2d.h>
 #include <iostream>
 #include <string>
+#include "converters.hpp"
 
 class Object
 {
