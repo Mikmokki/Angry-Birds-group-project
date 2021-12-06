@@ -20,7 +20,9 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     groundBodyDef.userData;
     objects_.push_back(gObj);
     b2PolygonShape groundBox;
-    groundBox.SetAsBox(50.0f, 1.0f);
+    float ground_w = 50.0f;
+    float ground_h = 1.0f;
+    groundBox.SetAsBox(ground_w, ground_h);
 
     b2FixtureDef def;
     def.shape = &groundBox;
@@ -30,6 +32,8 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     groundBody->CreateFixture(&def);
 
     // Create the bird object
+    float BIRD_RADIUS = 0.3f;
+
     b2BodyDef birdDef;
     birdDef.type = b2_dynamicBody;
     birdDef.position = bird_starting_position_;
@@ -37,15 +41,15 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
     b2Body *body = world_->CreateBody(&birdDef);
-    Bird *bird1 = new BoomerangBird(body);
-    Bird *bird2 = new DroppingBird(body);
-    Bird *bird3 = new SpeedBird(body);
+    Bird *bird1 = new BoomerangBird(body, BIRD_RADIUS);
+    Bird *bird2 = new DroppingBird(body, BIRD_RADIUS);
+    Bird *bird3 = new SpeedBird(body, BIRD_RADIUS);
     birds_.push_back(bird1);
     birds_.push_back(bird2);
     birds_.push_back(bird3);
 
     b2CircleShape birdShape;
-    birdShape.m_radius = 0.3f;
+    birdShape.m_radius = BIRD_RADIUS;
 
     b2FixtureDef birdFixture;
     birdFixture.shape = &birdShape;
@@ -62,11 +66,11 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     pigBodyDef.position.Set(5.f, 3.f);
     pigBodyDef.linearDamping = 0.5f;
 
-    b2Body *pigBody = world_->CreateBody(&pigBodyDef);
-    Object *pig_ = new Pig(pigBody);
-
     b2CircleShape pigShape;
     pigShape.m_radius = 0.3f;
+
+    b2Body *pigBody = world_->CreateBody(&pigBodyDef);
+    Object *pig_ = new Pig(pigBody, pigShape.m_radius);
 
     b2FixtureDef pigFixture;
     pigFixture.shape = &pigShape;

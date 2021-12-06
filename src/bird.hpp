@@ -6,14 +6,15 @@
 class Bird : public Object
 {
 public:
-    Bird(b2Body *body, std::string texture_file) : Object(texture_file, body)
+    Bird(b2Body *body, std::string texture_file, float b2_radius) : Object(texture_file, body)
     {
-        sprite_.setScale(bird_scale_, bird_scale_);
         body_ = body;
-        int h = sprite_.getTextureRect().height;
         int w = sprite_.getTextureRect().width;
+        int h = sprite_.getTextureRect().height;
 
-        sprite_.setOrigin(h * bird_scale_ / 2, w * bird_scale_ / 2); // Set origin to center
+        sprite_.setScale(b2_radius * 2.0f * scale / (1.0f * w), b2_radius * 2.0f * scale / (1.0f * h));
+
+        sprite_.setOrigin(w / 2, h / 2);
     };
     void MakeSound()
     {
@@ -43,8 +44,10 @@ public:
     {
         if (!power_used)
         {
+            std::cout << "Setting up the power to be used" << std::endl;
             power_used = true;
             power_left_ = max_power_;
+            std::cout << "Power setup done!" << std::endl;
         }
     }
     virtual void UsePower(){};
@@ -62,7 +65,7 @@ protected:
 class BoomerangBird : public Bird
 {
 public:
-    BoomerangBird(b2Body *body) : Bird(body, "../resources/images/bird.png"){};
+    BoomerangBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ > 0)
@@ -76,7 +79,7 @@ public:
 class DroppingBird : public Bird
 {
 public:
-    DroppingBird(b2Body *body) : Bird(body, "../resources/images/bird2.png"){};
+    DroppingBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird2_2.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ > 0)
@@ -90,7 +93,7 @@ public:
 class SpeedBird : public Bird
 {
 public:
-    SpeedBird(b2Body *body) : Bird(body, "../resources/images/bird3.png"){};
+    SpeedBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird3.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ >= max_power_ - 2)
