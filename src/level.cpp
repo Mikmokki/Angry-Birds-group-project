@@ -2,6 +2,7 @@
 #include "bird.hpp"
 #include "pig.hpp"
 #include "ground.hpp"
+#include "wall.hpp"
 #include <algorithm>
 #include <iostream>
 
@@ -81,6 +82,30 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
 
     pigBody->CreateFixture(&pigFixture);
     objects_.push_back(pig_);
+
+
+    b2BodyDef wall_body_def;
+    wall_body_def.type = b2_dynamicBody;
+    wall_body_def.position.Set(10.f, 5.f);
+    wall_body_def.linearDamping = 0.5f;
+
+    b2PolygonShape wall_shape;
+    float wall_shape_w = 0.5f;
+    float wall_shape_h = 2.5f;
+    wall_shape.SetAsBox(wall_shape_w, wall_shape_h);
+
+    b2Body *wall_body = world_->CreateBody(&wall_body_def);
+    Object *wall_ = new Wall(wall_body, wall_shape_w, wall_shape_h);
+
+    b2FixtureDef wall_fixture;
+    wall_fixture.shape = &wall_shape;
+    wall_fixture.density = 1.0f;
+    wall_fixture.friction = 0.1f;
+    // wall_fixture.restitution = 0.4f;
+    wall_fixture.userData.pointer = reinterpret_cast<uintptr_t>(wall_);
+
+    wall_body->CreateFixture(&wall_fixture);
+    objects_.push_back(wall_);
 }
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
