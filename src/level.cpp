@@ -251,9 +251,10 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 {
 
     // Draw slingshot
-    sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
+    /*sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
     peliAlue.setFillColor(sf::Color::Blue);
     window.draw(peliAlue);
+    */
 
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);

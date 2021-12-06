@@ -71,7 +71,7 @@ void Game::Start()
                     {
                         current_level_.GetBird()->NewPower();
                     }
-                    else if (settled && !menu.IsOpen() && power != 0)
+                    else if (settled && !menu.IsOpen() && !level_selector.IsOpen() && power != 0)
                     {
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
@@ -157,19 +157,19 @@ void Game::Start()
         {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 700 && mouse_position.y <= 780)
+                if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("../resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
                     level_selector.Close();
                 }
-                else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 700 && mouse_position.y <= 780)
+                else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("../resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
                     level_selector.Close();
                 }
-                else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 700 && mouse_position.y <= 780)
+                else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("../resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
