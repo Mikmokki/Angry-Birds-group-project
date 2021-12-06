@@ -4,12 +4,6 @@ LevelSelector::LevelSelector()
 {
     std::string name_texts[level_amount_] = {"Level 1", "Level 2", "Level 3"};
     std::string preview_filenames[level_amount_] = {"preview1.png", "preview2.png", "preview3.png"};
-    font_.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
-    open_ = true;
-    background_image_.loadFromFile("../resources/images/menu.png");
-    background_.setSize(sf::Vector2f(viewwidth, viewheight));
-    background_.setTexture(&background_image_);
-    background_.setPosition(0, 0);
     for (int i = 0; i < level_amount_; i++)
     {
         level_names_[i].setFont(font_);
@@ -39,20 +33,3 @@ void LevelSelector::Draw(sf::RenderWindow &window)
         window.draw(level_name);
     }
 }
-
-bool LevelSelector::IsOpen()
-{
-    return open_;
-}
-
-void LevelSelector::Close()
-{
-    open_ = false;
-}
-
-void LevelSelector::Open()
-{
-    open_ = true;
-}
-
-LevelSelector::~LevelSelector() {}

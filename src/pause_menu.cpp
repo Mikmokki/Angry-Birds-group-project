@@ -1,8 +1,8 @@
-#include "main_menu.hpp"
+#include "pause_menu.hpp"
 
-MainMenu::MainMenu() : Menu()
+PauseMenu::PauseMenu() : Menu()
 {
-    std::string button_texts[button_amount_] = {"Play", "Level Editor", "High Scores", "Exit"};
+    std::string button_texts[button_amount_] = {"Resume", "Main menu"};
     for (int i = 0; i < button_amount_; ++i)
     {
         menu_items_[i].setFont(font_);
@@ -11,9 +11,9 @@ MainMenu::MainMenu() : Menu()
         menu_items_[i].setCharacterSize(80);
         menu_items_[i].setPosition(1000, 200 + i * 100);
     }
-};
+}
 
-void MainMenu::Draw(sf::RenderWindow &window)
+void PauseMenu::Draw(sf::RenderWindow &window)
 {
     window.draw(background_);
     for (auto menu_item : menu_items_)

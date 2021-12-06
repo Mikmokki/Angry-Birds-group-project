@@ -31,9 +31,16 @@ void Game::Start()
 
     sf::View game_view(window.getDefaultView());
 
-    MainMenu menu = MainMenu();
+    MainMenu main_menu = MainMenu();
 
     LevelSelector level_selector = LevelSelector();
+
+    PauseMenu pause_menu = PauseMenu();
+
+    auto IsMenuOpen = [&]()
+    {
+        return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen();
+    };
 
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
@@ -60,18 +67,18 @@ void Game::Start()
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     sf::Vector2f pause_position = pause.getPosition();
-                    if (mouse_position.x < pause_position.x + 100 && mouse_position.y < pause_position.y + 100)
+                    if (mouse_position.x < pause_position.x + 100 && mouse_position.y < pause_position.y + 100 && !IsMenuOpen())
                     {
 
                         game_view = window.getDefaultView();
                         window.setView(game_view);
-                        menu.Open();
+                        pause_menu.Open();
                     }
-                    else if (current_level_.GetBird()->IsThrown())
+                    else if (current_level_.GetBird()->IsThrown() && !IsMenuOpen())
                     {
                         current_level_.GetBird()->NewPower();
                     }
-                    else if (settled && !menu.IsOpen() && !level_selector.IsOpen() && power != 0)
+                    else if (settled && !IsMenuOpen() && power != 0)
                     {
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
@@ -128,7 +135,7 @@ void Game::Start()
                 case sf::Keyboard::Escape:
                     game_view = window.getDefaultView();
                     window.setView(game_view);
-                    menu.Open();
+                    pause_menu.Open();
                     break;
 
                 default:
@@ -137,21 +144,21 @@ void Game::Start()
             }
         }
         window.clear(sf::Color::White);
-        if (menu.IsOpen())
+        if (main_menu.IsOpen())
         {
             level_selector.Open();
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 if (mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
                 {
-                    menu.Close();
+                    main_menu.Close();
                 }
                 else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
                 {
                     window.close();
                 }
             }
-            menu.Draw(window);
+            main_menu.Draw(window);
         }
         else if (level_selector.IsOpen())
         {
@@ -161,22 +168,40 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
+                    pause_menu.Close();
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("../resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
+                    pause_menu.Close();
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("../resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
+                    pause_menu.Close();
                     level_selector.Close();
                 }
             }
             level_selector.Draw(window);
+        }
+        else if (pause_menu.IsOpen())
+        {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                if (mouse_position.x >= 1000 && mouse_position.x <= 1300 && mouse_position.y >= 200 && mouse_position.y <= 280)
+                {
+                    pause_menu.Close();
+                }
+                else if (mouse_position.x >= 1000 && mouse_position.x <= 1400 && mouse_position.y >= 300 && mouse_position.y <= 380)
+                {
+                    main_menu.Open();
+                }
+            }
+            pause_menu.Draw(window);
         }
         else
         {
