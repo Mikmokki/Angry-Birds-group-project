@@ -238,7 +238,7 @@ void Game::Start()
                 game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
 
                 // Save world to file
-                // SaveLevel();
+                SaveLevel();
             }
 
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));

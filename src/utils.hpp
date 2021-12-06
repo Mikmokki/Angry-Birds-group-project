@@ -14,4 +14,6 @@ std::ostream &operator<<(std::ostream &output, const b2Vec2 &vector);
 namespace utils
 {
     std::ofstream OpenFileSafe(const std::string filename);
+
+    b2Vec2 DimensionsFromPolygon(const b2PolygonShape *shape);
 }

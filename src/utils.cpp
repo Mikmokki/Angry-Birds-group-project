@@ -76,4 +76,20 @@ namespace utils
 
         return std::ofstream(full_filename.str());
     }
+
+    b2Vec2 DimensionsFromPolygon(const b2PolygonShape *shape)
+    {
+        float min_w, max_w, min_h, max_h;
+        min_w = max_w = min_h = max_h = 0;
+        for (auto vertex : shape->m_vertices)
+        {
+            min_w = std::min(min_w, vertex.x);
+            max_w = std::max(max_w, vertex.x);
+            min_h = std::min(min_h, vertex.y);
+            max_h = std::max(max_h, vertex.y);
+        }
+        float width = max_w - min_w;
+        float height = max_h - min_h;
+        return b2Vec2(width / 2, height / 2);
+    }
 }

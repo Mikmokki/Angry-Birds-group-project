@@ -39,7 +39,7 @@ void Object::SaveState(std::ofstream &file)
         case b2Shape::Type::e_polygon:
             b2PolygonShape *polygon;
             polygon = static_cast<b2PolygonShape *>(shape_data);
-            file << polygon->m_centroid;
+            file << polygon->m_centroid << s;
             for (auto vertex : polygon->m_vertices)
             {
                 file << vertex << s;
