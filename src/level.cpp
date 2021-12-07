@@ -107,7 +107,7 @@ Level::Level(std::string name) : name_(name)
     wall_body->CreateFixture(&wall_fixture);
     objects_.push_back(wall_);
 }
-std::tuple<int, int, int> Level::CountBirdTypes()
+std::vector<int> Level::CountBirdTypes()
 {
     int boomerang_count = 0;
     int dropping_count = 0;
@@ -127,7 +127,8 @@ std::tuple<int, int, int> Level::CountBirdTypes()
             speed_count++;
         }
     }
-    return std::tuple<int, int, int>(boomerang_count, dropping_count, speed_count);
+    std::vector<int> counts{boomerang_count, dropping_count, speed_count};
+    return counts;
 }
 
 int Level::CountPigs()
@@ -139,7 +140,7 @@ int Level::CountPigs()
         {
             pig_count++;
         }
-        }
+    }
     return pig_count;
 }
 Level::Level(std::ifstream &file)

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <fstream>
 #include <sstream>
 #include <box2d/box2d.h>
@@ -48,10 +49,10 @@ public:
     }
     void ThrowBird(int angle, b2Vec2 velocity);
 
-    std::tuple<int, int, int> CountBirdTypes();
+    std::vector<int> CountBirdTypes();
 
     int CountPigs();
-    
+
     void ResetBird();
 
     bool IsLevelEnded() { return level_ended_; }

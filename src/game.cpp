@@ -8,7 +8,7 @@ Game::Game() : window_(sf::VideoMode(viewwidth, viewheight), "Angry Birds")
 
 void Game::LoadLevel(std::string filename)
 {
-    //current_level_ = Level("Level 1");
+    // current_level_ = Level("Level 1");
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
     {
@@ -278,45 +278,30 @@ void Game::Start()
                 game_view.setCenter(std::max(bird_position.x, window_.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
 
                 // Save world to file
-                //SaveLevel();
+                // SaveLevel();
             }
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
             high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
             high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetScore()));
             pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
-            if (std::get<0>(current_level_.CountBirdTypes()) > 0)
+            for (int i = 0; i < 4; i++)
             {
-                obj_images[0].setPosition(window_.mapPixelToCoords(sf::Vector2i(200, 0)));
-                obj_indicators[0].setPosition(window_.mapPixelToCoords(sf::Vector2i(250, 100)));
-                obj_indicators[0].setString(std::to_string(std::get<0>(current_level_.CountBirdTypes())));
-                window_.draw(obj_images[0]);
-                window_.draw(obj_indicators[0]);
+                if (current_level_.CountBirdTypes()[i] > 0)
+                {
+                    obj_images[i].setPosition(window_.mapPixelToCoords(sf::Vector2i(200 + i * 100, 0)));
+                    obj_indicators[i].setPosition(window_.mapPixelToCoords(sf::Vector2i(250 + i * 100, 100)));
+                    if (i != 3)
+                        obj_indicators[i].setString(std::to_string((current_level_.CountBirdTypes()[i])));
+                    else
+                    {
+                        obj_indicators[i].setString(std::to_string(current_level_.CountPigs()));
+                    }
+                    window_.draw(obj_images[i]);
+                    window_.draw(obj_indicators[i]);
+                }
             }
-            if (std::get<1>(current_level_.CountBirdTypes()) > 0)
-            {
-                obj_images[1].setPosition(window_.mapPixelToCoords(sf::Vector2i(300, 0)));
-                obj_indicators[1].setPosition(window_.mapPixelToCoords(sf::Vector2i(350, 100)));
-                obj_indicators[1].setString(std::to_string(std::get<1>(current_level_.CountBirdTypes())));
-                window_.draw(obj_images[1]);
-                window_.draw(obj_indicators[1]);
-            }
-            if (std::get<2>(current_level_.CountBirdTypes()) > 0)
-            {
-                obj_images[2].setPosition(window_.mapPixelToCoords(sf::Vector2i(400, 0)));
-                obj_indicators[2].setPosition(window_.mapPixelToCoords(sf::Vector2i(450, 100)));
-                obj_indicators[2].setString(std::to_string(std::get<2>(current_level_.CountBirdTypes())));
-                window_.draw(obj_images[2]);
-                window_.draw(obj_indicators[2]);
-            }
-            if (current_level_.CountPigs() > 0)
-            {
-                obj_images[3].setPosition(window_.mapPixelToCoords(sf::Vector2i(500, 0)));
-                obj_indicators[3].setPosition(window_.mapPixelToCoords(sf::Vector2i(550, 100)));
-                obj_indicators[3].setString(std::to_string(current_level_.CountPigs()));
-                window_.draw(obj_images[3]);
-                window_.draw(obj_indicators[3]);
-            }
+
             window_.draw(score);
             window_.draw(high_score);
 
