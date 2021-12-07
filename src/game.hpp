@@ -15,10 +15,12 @@ public:
     Game();
     void LoadLevel(std::string filename);
     void SaveLevel();
+    void UpdateSavedHighScore(std::list<int> high_scores);
     void LoadIcon();
     void Start();
 
 private:
+    std::string current_level_file_name_;
     Level current_level_;
     sf::RenderWindow window_;
 };

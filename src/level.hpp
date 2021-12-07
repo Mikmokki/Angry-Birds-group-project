@@ -43,10 +43,11 @@ public:
     {
         return score_;
     }
-    int GetHighScore()
-    {
-        return high_score_;
-    }
+
+    int GetHighScore();
+
+    std::list<int> UpdateHighScore();
+
     void ThrowBird(int angle, b2Vec2 velocity);
 
     std::vector<int> CountBirdTypes();
@@ -71,7 +72,7 @@ private:
     b2World *world_;
     std::list<Object *> objects_;
     int score_ = 0;
-    int high_score_;
+    std::list<int> high_scores_;
     bool level_ended_ = false;
 };
 

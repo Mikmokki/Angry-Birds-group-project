@@ -16,6 +16,7 @@ void Game::LoadLevel(std::string filename)
     }
     else
     {
+        current_level_file_name_ = filename;
         current_level_ = Level(file);
     }
 }
@@ -89,6 +90,7 @@ void Game::Start()
 
     bool settled = false;            // Is the world in a settled state (nothing is moving)
     bool has_just_settled = settled; // Has the world settled on the previous simulation step
+    bool has_player_won = false;     // Did player just win the level
     float direction = 0;             // Direction of the aiming arrow in degrees
     float power = 0;                 // Power of the aiming arrow (0-100)
     while (window_.isOpen())
@@ -283,11 +285,11 @@ void Game::Start()
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
             high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
-            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetScore()));
+            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
             pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
             for (int i = 0; i < 4; i++)
             {
-                if (current_level_.CountBirdTypes()[i] > 0)
+                if (current_level_.CountBirdTypes()[i] > 0 || i == 3)
                 {
                     obj_images[i].setPosition(window_.mapPixelToCoords(sf::Vector2i(200 + i * 100, 0)));
                     obj_indicators[i].setPosition(window_.mapPixelToCoords(sf::Vector2i(250 + i * 100, 100)));
@@ -307,6 +309,47 @@ void Game::Start()
 
             window_.draw(pause);
         }
+
+        if (current_level_.IsLevelEnded() && !has_player_won)
+        {
+            // Save highscore and Open endscreen
+            std::list<int> high_scores = current_level_.UpdateHighScore();
+            UpdateSavedHighScore(high_scores);
+            has_player_won = true; // Only update highscores once
+        }
         window_.display();
     }
+}
+
+void Game::UpdateSavedHighScore(std::list<int> high_scores)
+{
+    const int line_to_update = 2;
+    // Read all lines to memory, this shouldn't be a problem since save files are quite small
+    std::ifstream input(current_level_file_name_);
+    std::vector<std::string> lines;
+    std::string line;
+    std::getline(input, line);
+    while (input.good())
+    {
+        lines.push_back(line);
+        std::getline(input, line);
+    }
+
+    input.close();
+
+    std::stringstream high_scores_stream;
+
+    for (auto score : high_scores)
+    {
+        high_scores_stream << score << ";";
+    }
+    // Replace second row
+    lines[1] = high_scores_stream.str();
+
+    std::ofstream output(current_level_file_name_);
+    for (auto line : lines)
+    {
+        output << line << std::endl;
+    }
+    output.close();
 }

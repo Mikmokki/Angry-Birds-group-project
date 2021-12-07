@@ -10,7 +10,8 @@ Level::Level() : name_("") {}
 
 Level::Level(std::string name) : name_(name)
 {
-    high_score_ = 1290; // should be read from the file
+    std::list<int> high_scores(1290); // should be read from the file
+    high_scores_ = high_scores;
     world_ = new b2World(gravity);
     // Creating ground box
     b2BodyDef groundBodyDef;
@@ -159,7 +160,23 @@ Level::Level(std::ifstream &file)
             name_ = name;
         }
 
-        // Get bird list from second line
+        // Read highscores from second line
+        std::string high_scores_string;
+        std::getline(file, high_scores_string);
+        std::stringstream hs_ss(high_scores_string);
+
+        std::list<int> high_scores;
+        std::string high_score;
+        std::getline(hs_ss, high_score, ';');
+        while (hs_ss.good())
+        {
+            high_scores.push_back(std::stoi(high_score));
+            std::getline(hs_ss, high_score, ';');
+        }
+
+        high_scores_ = high_scores;
+
+        // Read bird list from third line
         std::string bird_list;
         std::getline(file, bird_list);
 
@@ -381,11 +398,6 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     window.draw(sprite);
     moving = moving || body->IsAwake();
 
-    if (score_ > high_score_)
-    {
-        high_score_ = score_;
-    }
-
     return moving;
 }
 
@@ -438,7 +450,13 @@ void Level::SaveState(std::ofstream &file)
 {
     // Write level name to first line
     file << name_ << std::endl;
-    // Save available birds on the second line
+    // Write highscores on second line
+    for (auto high_score : high_scores_)
+    {
+        file << high_score << ";";
+    }
+    file << std::endl;
+    // Write available birds on the third line
     for (auto bird : birds_)
     {
         file << bird->GetType();
@@ -453,4 +471,35 @@ void Level::SaveState(std::ofstream &file)
         obj->SaveState(file);
         file << std::endl;
     }
+}
+
+int Level::GetHighScore()
+{
+    high_scores_.sort();
+    high_scores_.reverse();
+    int high_score = high_scores_.front();
+    return high_score;
+}
+
+std::list<int> Level::UpdateHighScore()
+{
+    high_scores_.sort();
+    if (high_scores_.size() > 10)
+    {
+        auto it = high_scores_.begin();
+        while (it != high_scores_.end())
+        {
+            if (score_ > *it)
+            {
+                (*it) = score_;
+                break;
+            }
+            it++;
+        }
+    }
+    else
+    {
+        high_scores_.push_back(score_);
+    }
+    return high_scores_;
 }
