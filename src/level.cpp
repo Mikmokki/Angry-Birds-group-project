@@ -1,184 +1,456 @@
 #include "level.hpp"
-#include "bird.hpp"
-#include "wall.hpp"
+#include "pig.hpp"
 #include "ground.hpp"
-#include "converters.hpp"
+#include "utils.hpp"
+#include "wall.hpp"
+#include <algorithm>
+#include <iostream>
 
-Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
+Level::Level() : name_("") {}
 
-Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_starting_position_(bird_starting_pos)
+Level::Level(std::string name) : name_(name)
 {
+    high_score_ = 1290; // should be read from the file
     world_ = new b2World(gravity);
     // Creating ground box
     b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, -10.0f);
+    groundBodyDef.position.Set(0.0f, 0.0f);
     b2Body *groundBody = world_->CreateBody(&groundBodyDef);
-    objects_.push_back(new Ground(groundBody));
+
+    Object *gObj = new Ground(groundBody);
+
+    groundBodyDef.userData;
+    objects_.push_back(gObj);
     b2PolygonShape groundBox;
-    groundBox.SetAsBox(50.0f, 10.0f);
-    groundBody->CreateFixture(&groundBox, 0.0f);
+    float ground_w = 50.0f;
+    float ground_h = 1.0f;
+    groundBox.SetAsBox(ground_w, ground_h);
 
-    hovering_object_ = 0;
-}
+    b2FixtureDef def;
+    def.shape = &groundBox;
+    def.density = 0.0f;
 
-void Level::ThrowBird(int angle, b2Vec2 velocity)
-{
-    std::cout << "Throw Bird!" << std::endl;
+    def.userData.pointer = reinterpret_cast<uintptr_t>(gObj);
+    groundBody->CreateFixture(&def);
+
+    // Create the bird object
+    float BIRD_RADIUS = 0.3f;
+
     b2BodyDef birdDef;
     birdDef.type = b2_dynamicBody;
-    birdDef.angle = angle;
-    birdDef.position = bird_starting_position_;
-    birdDef.linearVelocity = velocity;
+    birdDef.position = bird_starting_position;
     birdDef.linearDamping = 0.5f; // This could be constant and should be adjusted
+    birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
     b2Body *body = world_->CreateBody(&birdDef);
-    float bird_w = 1.0f;
-    float bird_h = 1.0f;
-    Object *obj = new Bird(body, bird_w, bird_w, 0);
-    objects_.push_back(obj);
+    Bird *bird1 = new BoomerangBird(body, BIRD_RADIUS);
+    Bird *bird2 = new DroppingBird(body, BIRD_RADIUS);
+    Bird *bird3 = new SpeedBird(body, BIRD_RADIUS);
+    birds_.push_back(bird1);
+    birds_.push_back(bird2);
+    birds_.push_back(bird3);
 
     b2CircleShape birdShape;
-    birdShape.m_radius = 0.3;
+    birdShape.m_radius = BIRD_RADIUS;
 
     b2FixtureDef birdFixture;
     birdFixture.shape = &birdShape;
     birdFixture.density = 1.0f;
     birdFixture.friction = 1.0f;
+    birdFixture.restitution = 0.4f;
+    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(GetBird());
 
     body->CreateFixture(&birdFixture);
-}
 
-void Level::AddObject(sf::RenderWindow &window)
+    b2BodyDef pigBodyDef;
+
+    pigBodyDef.type = b2_dynamicBody;
+    pigBodyDef.position.Set(5.f, 3.f);
+    pigBodyDef.linearDamping = 0.5f;
+
+    b2CircleShape pigShape;
+    pigShape.m_radius = 0.3f;
+
+    b2Body *pigBody = world_->CreateBody(&pigBodyDef);
+    Object *pig_ = new Pig(pigBody, pigShape.m_radius);
+
+    b2FixtureDef pigFixture;
+    pigFixture.shape = &pigShape;
+    pigFixture.density = 1.0f;
+    pigFixture.friction = 1.0f;
+    pigFixture.restitution = 0.4f;
+    pigFixture.userData.pointer = reinterpret_cast<uintptr_t>(pig_);
+
+    pigBody->CreateFixture(&pigFixture);
+    objects_.push_back(pig_);
+
+    b2BodyDef wall_body_def;
+    wall_body_def.type = b2_dynamicBody;
+    wall_body_def.position.Set(10.f, 5.f);
+    wall_body_def.linearDamping = 0.5f;
+
+    b2PolygonShape wall_shape;
+    float wall_shape_w = 0.5f;
+    float wall_shape_h = 2.5f;
+    wall_shape.SetAsBox(wall_shape_w, wall_shape_h);
+
+    b2Body *wall_body = world_->CreateBody(&wall_body_def);
+    Object *wall_ = new Wall(wall_body, wall_shape_w, wall_shape_h);
+
+    b2FixtureDef wall_fixture;
+    wall_fixture.shape = &wall_shape;
+    wall_fixture.density = 1.0f;
+    wall_fixture.friction = 0.1f;
+    // wall_fixture.restitution = 0.4f;
+    wall_fixture.userData.pointer = reinterpret_cast<uintptr_t>(wall_);
+
+    wall_body->CreateFixture(&wall_fixture);
+    objects_.push_back(wall_);
+}
+std::vector<int> Level::CountBirdTypes()
 {
-    if (hovering_object_ == 1)
+    int boomerang_count = 0;
+    int dropping_count = 0;
+    int speed_count = 0;
+    for (const auto &bird : birds_)
     {
-        b2BodyDef hover_obj_bodydef;
-        hover_obj_bodydef.type = b2_dynamicBody;
-        hover_obj_bodydef.position = utils::SfToB2Coords(sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y));
-        hover_obj_bodydef.linearDamping = 0.5f; // This could be constant and should be adjusted
-
-        b2Body *body = world_->CreateBody(&hover_obj_bodydef);
-        // body->SetTransform(body->GetWorldCenter(), hover_rotation_ * (M_PI / 180.0f));
-
-        float bird_w = 1.0f;
-        float bird_h = 1.0f;
-
-        b2CircleShape hover_obj_shape;
-        // hover_obj_shape.SetAsBox(bird_w, bird_h, b2Vec2(bird_w / 2, bird_h / 2), (hover_rotation_ * (M_PI / 180.0f)));
-        hover_obj_shape.m_radius = 0.3f;
-
-        b2FixtureDef body_fixture;
-        body_fixture.shape = &hover_obj_shape;
-        body_fixture.density = 1.0f;
-        body_fixture.friction = 1.0f;
-
-        body->CreateFixture(&body_fixture);
-
-        Object *obj = new Bird(body, bird_w, bird_w, hover_rotation_);
-        objects_.push_back(obj);
-
-        hover_rotation_ = 0;
+        if (BoomerangBird *v = dynamic_cast<BoomerangBird *>(bird))
+        {
+            boomerang_count++;
+        }
+        if (DroppingBird *v = dynamic_cast<DroppingBird *>(bird))
+        {
+            dropping_count++;
+        }
+        if (SpeedBird *v = dynamic_cast<SpeedBird *>(bird))
+        {
+            speed_count++;
+        }
     }
-    else if (hovering_object_ == 2)
+    std::vector<int> counts{boomerang_count, dropping_count, speed_count};
+    return counts;
+}
+
+int Level::CountPigs()
+{
+    int pig_count = 0;
+    for (const auto &obj : objects_)
     {
-        b2BodyDef hover_obj_bodydef;
-        hover_obj_bodydef.type = b2_dynamicBody;
-        std::cout << sf::Mouse::getPosition().x << "," << sf::Mouse::getPosition().y << std::endl;
-        hover_obj_bodydef.position = utils::SfToB2Coords(sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y));
-        // hover_obj_bodydef.angle = 1.0f * hover_rotation_ * (M_PI / 180.0f);
-        hover_obj_bodydef.linearDamping = 0.5f; // This could be constant and should be adjusted
+        if (Pig *v = dynamic_cast<Pig *>(obj))
+        {
+            pig_count++;
+        }
+    }
+    return pig_count;
+}
+Level::Level(std::ifstream &file)
+{
+    if (file.rdstate() & (file.failbit | file.badbit))
+    {
+        std::cerr << "Failed" << std::endl; // output error to stderr stream
+    }
+    else
+    {
+        // Read level name from the first line
+        if (!file.eof())
+        {
+            std::string name;
+            std::getline(file, name);
+            name_ = name;
+        }
 
-        std::cout << "Rotation: " << hover_rotation_ << " to radians " << (hover_rotation_ * (M_PI / 180.0f)) << std::endl;
+        // Get bird list from second line
+        std::string bird_list;
+        std::getline(file, bird_list);
 
-        b2Body *body = world_->CreateBody(&hover_obj_bodydef);
-        // body->SetTransform(hover_obj_bodydef.position, -1.0f * hover_rotation_ * (M_PI / 180.0f));
-        float wall_w = 1.f;
-        float wall_h = 10.f;
+        world_ = new b2World(gravity);
 
-        b2PolygonShape hover_obj_shape;
-        hover_obj_shape.SetAsBox(wall_w, wall_h, b2Vec2(wall_w, wall_h), (-1.0f * hover_rotation_ * (M_PI / 180.0f)));
+        while (!file.eof())
+        {
+            char obj_type;
+            file.get(obj_type);
+            file.ignore(); // Ignore the following separator
 
-        b2FixtureDef hover_wall_fixture;
-        hover_wall_fixture.shape = &hover_obj_shape;
-        hover_wall_fixture.density = 10.0f;
-        hover_wall_fixture.friction = 10.3f;
-        b2MassData wall_mass_data;
-        wall_mass_data.mass = 100.0f;
-        wall_mass_data.center = b2Vec2(wall_w / 2.0f, wall_h / 2.0f);
-        wall_mass_data.I = -20.0f;
+            char _; // character dump
+            // Read the body definition
+            b2BodyDef body_def;
 
-        body->SetMassData(&wall_mass_data);
-        body->CreateFixture(&hover_wall_fixture);
+            file >> body_def.position >> _ >> body_def.angle >> _ >> body_def.angularVelocity >> _ >> body_def.linearVelocity >> _ >> body_def.angularDamping >> _ >> body_def.linearDamping >> _ >> body_def.gravityScale >> _ >> body_def.type >> _ >> body_def.awake >> _;
 
-        Object *obj = new Wall(body, wall_w, wall_h, hover_rotation_);
-        objects_.push_back(obj);
+            b2Body *body = world_->CreateBody(&body_def);
 
-        hover_rotation_ = 0;
+            std::string fixture_str;
+            // Read fixtures
+            std::getline(file, fixture_str, '\n');
+            std::stringstream fixture(fixture_str);
+            b2FixtureDef fixture_def;
+
+            int shape_type;
+            fixture >> shape_type >> _;
+            // The shapes need to live in the outer scope here so the fixture can see them
+            b2CircleShape circle;
+            b2PolygonShape polygon;
+            switch (shape_type)
+            {
+            case b2Shape::Type::e_circle:
+            {
+                fixture >> circle.m_p >> _ >> circle.m_radius >> _;
+                fixture_def.shape = &circle;
+                break;
+            }
+            case b2Shape::Type::e_polygon:
+            {
+                fixture >> polygon.m_centroid >> _;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    b2Vec2 vertex;
+                    fixture >> vertex >> _;
+                    polygon.m_vertices[i] = vertex; // Update array in place since c++ only supports array copying with memcpy
+                }
+                for (int i = 0; i < 8; i++)
+                {
+                    b2Vec2 normal;
+                    fixture >> normal >> _;
+                    polygon.m_normals[i] = normal;
+                }
+
+                fixture >> polygon.m_count >> _ >> polygon.m_radius >> _;
+
+                fixture_def.shape = &polygon;
+                break;
+            }
+            default:
+                std::cerr << "Reading Level file failed, unknown shape on a fixture" << std::endl;
+                break;
+            }
+
+            fixture >> fixture_def.density >> _ >> fixture_def.friction >> _ >> fixture_def.restitution >> _;
+
+            switch (obj_type)
+            {
+            case 'B':
+            case 'D':
+            case 'S':
+            {
+                for (auto type : bird_list)
+                {
+                    Bird *bird;
+                    switch (type)
+                    {
+                    case 'B':
+                        bird = new BoomerangBird(body, fixture_def.shape->m_radius);
+                        break;
+                    case 'D':
+                        bird = new DroppingBird(body, fixture_def.shape->m_radius);
+                        break;
+                    case 'S':
+                        bird = new SpeedBird(body, fixture_def.shape->m_radius);
+                        break;
+                    default:
+                        // Unknown bird
+                        continue;
+                    }
+                    birds_.push_back(bird);
+                    fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(bird);
+                }
+                break;
+            }
+            case 'G':
+            {
+                Ground *g = new Ground(body);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(g);
+                objects_.push_back(g);
+                break;
+            }
+            case 'P':
+            {
+                Pig *p = new Pig(body, fixture_def.shape->m_radius);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(p);
+                objects_.push_back(p);
+                break;
+            }
+            case 'W':
+            {
+                b2Vec2 dimensions = utils::DimensionsFromPolygon(static_cast<const b2PolygonShape *>(fixture_def.shape));
+                Wall *w = new Wall(body, dimensions.x, dimensions.y);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(w);
+                objects_.push_back(w);
+                break;
+            }
+            default:
+                // Unknown type skip row
+                continue;
+            }
+
+            body->CreateFixture(&fixture_def);
+        }
     }
 }
 
-sf::Vector2f toSFVector(b2Vec2 original)
+void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
-    return sf::Vector2f(original.x * scale, 800 - (original.y * scale));
+    if (birds_.size() == 0)
+    {
+        level_ended_ = true;
+    }
+    if (!IsLevelEnded())
+    {
+        b2Body *body = GetBird()->GetBody();
+        body->SetGravityScale(1);
+        body->ApplyLinearImpulseToCenter(velocity, true);
+        GetBird()->MakeSound();
+        GetBird()->Throw();
+    }
+}
+void Level::ResetBird()
+{
+    if (birds_.size() > 1)
+    {
+        birds_.pop_front();
+    }
+    b2Body *body = GetBird()->GetBody();
+    body->SetGravityScale(0);
+    body->SetTransform(bird_starting_position, 0);
 }
 
-b2Vec2 toB2Vector(sf::Vector2f original)
+bool ObjectRemover(Object *obj)
 {
-    return b2Vec2(original.x / scale, 900 - (original.y / scale));
+    return obj->IsDestroyed();
 }
 
-bool Level::RenderLevel(sf::RenderWindow &window)
+bool Level::DrawLevel(sf::RenderWindow &window)
 {
+
+    // Draw slingshot
+    sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
+    sf::Texture slingshot_texture;
+    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
+    slingshot.setTexture(&slingshot_texture);
+    slingshot.setOrigin(50, 50);
+    slingshot.setPosition(slingshot_center);
+    window.draw(slingshot);
+
+    for (b2ContactEdge *ce = GetBird()->GetBody()->GetContactList(); ce; ce = ce->next)
+    {
+
+        b2Contact *c = ce->contact;
+
+        Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
+        Object *objB = reinterpret_cast<Object *>(c->GetFixtureB()->GetUserData().pointer);
+
+        score_ = score_ + objA->TryToDestroy();
+        score_ = score_ + objB->TryToDestroy();
+    }
+
+    for (auto ob : objects_)
+    {
+        if (ob->IsDestroyed())
+        {
+            world_->DestroyBody(ob->GetBody());
+        }
+    }
+
+    objects_.remove_if(ObjectRemover);
+    if (std::all_of(objects_.begin(), objects_.end(), [](Object *obj)
+                    { return !obj->IsDestructable(); }) &&
+        !IsLevelEnded())
+    {
+        level_ended_ = true;
+        score_ = score_ + (birds_.size() - 1) * 1000;
+    }
+    // Draw box2d objects
     bool moving = false;
-    sf::Sprite h_object;
-    sf::Texture h_object_image;
-
-    // h_object.setFillColor(sf::Color(255, 255, 255, 128));
-    h_object.setColor(sf::Color(255, 255, 255, 128));
-
-    switch (hovering_object_)
-    {
-    case 1:
-        h_object_image.loadFromFile("../resources/images/bird.png");
-        // h_object.setSize(sf::Vector2f(30, 30));
-        h_object.setScale(1.0f * 64.0f / (1.0f * h_object_image.getSize().x), 1.0f * 64.0f / (1.0f * h_object_image.getSize().y));
-        h_object.setOrigin(h_object_image.getSize().x / 2, h_object_image.getSize().y / 2);
-        h_object.setPosition(0, 0);
-        h_object.setTexture(h_object_image);
-        break;
-    case 2:
-        h_object_image.loadFromFile("../resources/images/box.png");
-        // h_object.setSize(sf::Vector2f(300, 300));
-        h_object.setScale(1.0f * 64.0f / (1.0f * h_object_image.getSize().x), 10.0f * 64.0f / (1.0f * h_object_image.getSize().y));
-        h_object.setOrigin(h_object_image.getSize().x / 2, h_object_image.getSize().y / 2);
-        h_object.setPosition(0, 0);
-        h_object.setTexture(h_object_image);
-        break;
-    default:
-        h_object_image.loadFromFile("");
-        h_object.setTexture(h_object_image);
-        break;
-    }
-
-    window.clear(sf::Color::White);
     for (auto it : objects_)
     {
         b2Body *body = it->GetBody();
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
         sprite.setPosition(utils::B2ToSfCoords(pos));
-        std::cout << "Drawing rotation: " << (-1.0f * utils::RadiansToDegrees(body->GetAngle())) << std::endl;
-        sprite.setRotation(sprite.getRotation() + -1.0f * utils::RadiansToDegrees(body->GetAngle()));
+        sprite.setRotation(utils::RadiansToDegrees(body->GetAngle()));
         window.draw(sprite);
-        //std::cout << "Draw angle: " << body->GetAngle() << "  Position: " << pos.x << ", " << pos.y << std::endl;
         moving = moving || body->IsAwake();
     }
 
-    sf::Vector2i m = sf::Mouse::getPosition(window);
-    h_object.setPosition(m.x, m.y);
-    h_object.setRotation(hover_rotation_);
+    b2Body *body = GetBird()->GetBody();
+    b2Vec2 pos = body->GetPosition();
+    sf::Sprite sprite = GetBird()->GetSprite();
+    sprite.setPosition(utils::B2ToSfCoords(pos));
+    sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
+    window.draw(sprite);
+    moving = moving || body->IsAwake();
 
-    window.draw(h_object);
-    window.display();
+    if (score_ > high_score_)
+    {
+        high_score_ = score_;
+    }
+
     return moving;
+}
+
+std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
+{
+    sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
+
+    sf::Vector2f difference = mouse_position - slingshot_center;
+
+    if (difference.x < 0)
+    {
+        float direction;
+        if (difference.y > 0)
+        {
+            direction = 90 + utils::RadiansToDegrees(atan(difference.x / difference.y));
+        }
+        else if (difference.y == 0)
+        {
+            direction = 0;
+        }
+        else
+        {
+            direction = 270 + utils::RadiansToDegrees(atan(difference.x / difference.y));
+        }
+
+        float rotation = -direction;
+
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
+
+        sf::RectangleShape line(sf::Vector2f(length, 5));
+        line.setFillColor(sf::Color(0, 0, 0));
+        line.setPosition(slingshot_center.x, slingshot_center.y);
+        line.setRotation(180 + rotation);
+        window.draw(line);
+        line.setSize(sf::Vector2f(length / 3, 4));
+        line.setRotation(150 + rotation);
+        window.draw(line);
+        line.setRotation(210 + rotation);
+        window.draw(line);
+        return {direction, length};
+    }
+    else
+    {
+        return {0, 0};
+    }
+}
+
+void Level::SaveState(std::ofstream &file)
+{
+    // Write level name to first line
+    file << name_ << std::endl;
+    // Save available birds on the second line
+    for (auto bird : birds_)
+    {
+        file << bird->GetType();
+    }
+    file << std::endl;
+    // Save bird to second line
+    GetBird()->SaveState(file);
+    file << std::endl;
+    // Then save all the other objects
+    for (auto obj : objects_)
+    {
+        obj->SaveState(file);
+        file << std::endl;
+    }
 }

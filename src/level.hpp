@@ -3,18 +3,21 @@
 
 #include <string>
 #include <list>
+#include <vector>
+#include <fstream>
+#include <sstream>
 #include <box2d/box2d.h>
 #include <SFML/Graphics.hpp>
-#include "object.hpp"
-
-const b2Vec2 gravity(0.0f, -9.8f);
-const float scale = 100.0f;
-
+#include "bird.hpp"
+#include "converters.hpp"
+#include <iostream>
+#include <tuple>
 class Level
 {
 public:
     Level();
-    Level(std::string name, b2Vec2 bird_starting_pos);
+    Level(std::string name);
+    Level(std::ifstream &file);
 
     std::string GetName() const
     {
@@ -31,31 +34,45 @@ public:
         return objects_;
     }
 
+    Bird *GetBird()
+    {
+        return birds_.front();
+    }
+
+    int GetScore()
+    {
+        return score_;
+    }
+    int GetHighScore()
+    {
+        return high_score_;
+    }
     void ThrowBird(int angle, b2Vec2 velocity);
 
+    std::vector<int> CountBirdTypes();
+
+    int CountPigs();
+
+    void ResetBird();
+
+    bool IsLevelEnded() { return level_ended_; }
+
     // Returns true if world hasn't settled yet
-    bool RenderLevel(sf::RenderWindow &window);
+    bool DrawLevel(sf::RenderWindow &window);
 
-    void CycleHover()
-    {
-        hovering_object_ = (hovering_object_ + 1) % 3;
-        hover_rotation_ = 0;
-    }
+    // Returns { direction, power } of the arrow
+    std::tuple<float, float> DrawArrow(sf::RenderWindow &window);
 
-    void RotateHover(float amount)
-    {
-        hover_rotation_ += amount;
-    }
-
-    void AddObject(sf::RenderWindow &window);
+    void SaveState(std::ofstream &file);
 
 private:
     std::string name_;
-    b2Vec2 bird_starting_position_;
+    std::list<Bird *> birds_;
     b2World *world_;
     std::list<Object *> objects_;
-    int hovering_object_;
-    float hover_rotation_;
+    int score_ = 0;
+    int high_score_;
+    bool level_ended_ = false;
 };
 
 #endif // ANGRY_BIRDS_LEVEL

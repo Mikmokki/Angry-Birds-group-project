@@ -2,24 +2,25 @@
 #define ANGRY_BIRDS_GAME
 
 #include "level.hpp"
-
-const int viewwidth = 1600;
-const int viewheight = 900;
-const int framerate = 60;
-const float time_step = 1.0f / framerate;
-const int velocity_iterations = 6;
-const int position_iterations = 2;
+#include "main_menu.hpp"
+#include "pause_menu.hpp"
+#include "level_selector.hpp"
+#include <fstream>
+#include <sstream>
+#include "utils.hpp"
 
 class Game
 {
 public:
-    Game(){};
+    Game();
     void LoadLevel(std::string filename);
+    void SaveLevel();
+    void LoadIcon();
     void Start();
-    // bool AddObject(Object *obj, std::string path = "");
 
 private:
     Level current_level_;
+    sf::RenderWindow window_;
 };
 
 #endif // ANGRY_BIRDS_GAME
