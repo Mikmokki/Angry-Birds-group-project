@@ -16,8 +16,9 @@ public:
         sprite_.setOrigin(w / 2, h / 2);
     };
 
+    char GetType() { return 'W'; };
+
 private:
-    const float wall_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
 };
 
 #endif // ANGRY_BIRDS_WALL
