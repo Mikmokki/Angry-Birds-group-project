@@ -377,7 +377,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     b2Vec2 pos = body->GetPosition();
     sf::Sprite sprite = GetBird()->GetSprite();
     sprite.setPosition(utils::B2ToSfCoords(pos));
-    sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()) * -1.0f);
+    sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
     window.draw(sprite);
     moving = moving || body->IsAwake();
 
