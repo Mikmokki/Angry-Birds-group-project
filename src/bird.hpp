@@ -49,6 +49,7 @@ public:
         }
     }
     virtual void UsePower(){};
+    virtual char GetType() = 0;
 
 protected:
     const float bird_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
@@ -60,6 +61,7 @@ protected:
     bool power_used = false;
     bool thrown_ = false;
 };
+
 class BoomerangBird : public Bird
 {
 public:
@@ -73,7 +75,9 @@ public:
             body_->SetLinearVelocity(body_->GetLinearVelocity() - b2Vec2(0.5, 0.5));
         }
     };
+    virtual char GetType() { return 'B'; };
 };
+
 class DroppingBird : public Bird
 {
 public:
@@ -86,6 +90,7 @@ public:
             body_->SetLinearVelocity(body_->GetLinearVelocity() - b2Vec2(0, 2));
         }
     };
+    virtual char GetType() { return 'D'; };
 };
 
 class SpeedBird : public Bird
@@ -100,6 +105,7 @@ public:
             body_->SetLinearVelocity(body_->GetLinearVelocity() + body_->GetLinearVelocity());
         }
     };
+    virtual char GetType() { return 'S'; };
 };
 
 #endif // ANGRY_BIRDS_BIRD

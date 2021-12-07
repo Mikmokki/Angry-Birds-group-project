@@ -1,14 +1,14 @@
 #include "level.hpp"
-#include "bird.hpp"
 #include "pig.hpp"
 #include "ground.hpp"
+#include "utils.hpp"
 #include "wall.hpp"
 #include <algorithm>
 #include <iostream>
 
-Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
+Level::Level() : name_("") {}
 
-Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_starting_position_(bird_starting_pos)
+Level::Level(std::string name) : name_(name)
 {
     world_ = new b2World(gravity);
     // Creating ground box
@@ -37,7 +37,7 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
 
     b2BodyDef birdDef;
     birdDef.type = b2_dynamicBody;
-    birdDef.position = bird_starting_position_;
+    birdDef.position = bird_starting_position;
     birdDef.linearDamping = 0.5f; // This could be constant and should be adjusted
     birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
 
@@ -107,6 +107,151 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     objects_.push_back(wall_);
 }
 
+Level::Level(std::ifstream &file)
+{
+    if (file.rdstate() & (file.failbit | file.badbit))
+    {
+        std::cerr << "Failed" << std::endl; // output error to stderr stream
+    }
+    else
+    {
+        // Read level name from the first line
+        if (!file.eof())
+        {
+            std::string name;
+            std::getline(file, name);
+            name_ = name;
+        }
+
+        // Get bird list from second line
+        std::string bird_list;
+        std::getline(file, bird_list);
+
+        world_ = new b2World(gravity);
+
+        while (!file.eof())
+        {
+            char obj_type;
+            file.get(obj_type);
+            file.ignore(); // Ignore the following separator
+
+            char _; // character dump
+            // Read the body definition
+            b2BodyDef body_def;
+
+            file >> body_def.position >> _ >> body_def.angle >> _ >> body_def.angularVelocity >> _ >> body_def.linearVelocity >> _ >> body_def.angularDamping >> _ >> body_def.linearDamping >> _ >> body_def.gravityScale >> _ >> body_def.type >> _ >> body_def.awake >> _;
+
+            b2Body *body = world_->CreateBody(&body_def);
+
+            std::string fixture_str;
+            // Read fixtures
+            std::getline(file, fixture_str, '\n');
+            std::stringstream fixture(fixture_str);
+            b2FixtureDef fixture_def;
+
+            int shape_type;
+            fixture >> shape_type >> _;
+            // The shapes need to live in the outer scope here so the fixture can see them
+            b2CircleShape circle;
+            b2PolygonShape polygon;
+            switch (shape_type)
+            {
+            case b2Shape::Type::e_circle:
+            {
+                fixture >> circle.m_p >> _ >> circle.m_radius >> _;
+                fixture_def.shape = &circle;
+                break;
+            }
+            case b2Shape::Type::e_polygon:
+            {
+                fixture >> polygon.m_centroid >> _;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    b2Vec2 vertex;
+                    fixture >> vertex >> _;
+                    polygon.m_vertices[i] = vertex; // Update array in place since c++ only supports array copying with memcpy
+                }
+                for (int i = 0; i < 8; i++)
+                {
+                    b2Vec2 normal;
+                    fixture >> normal >> _;
+                    polygon.m_normals[i] = normal;
+                }
+
+                fixture >> polygon.m_count >> _ >> polygon.m_radius >> _;
+
+                fixture_def.shape = &polygon;
+                break;
+            }
+            default:
+                std::cerr << "Reading Level file failed, unknown shape on a fixture" << std::endl;
+                break;
+            }
+
+            fixture >> fixture_def.density >> _ >> fixture_def.friction >> _ >> fixture_def.restitution >> _;
+
+            switch (obj_type)
+            {
+            case 'B':
+            case 'D':
+            case 'S':
+            {
+                for (auto type : bird_list)
+                {
+                    Bird *bird;
+                    switch (type)
+                    {
+                    case 'B':
+                        bird = new BoomerangBird(body, fixture_def.shape->m_radius);
+                        break;
+                    case 'D':
+                        bird = new DroppingBird(body, fixture_def.shape->m_radius);
+                        break;
+                    case 'S':
+                        bird = new SpeedBird(body, fixture_def.shape->m_radius);
+                        break;
+                    default:
+                        // Unknown bird
+                        continue;
+                    }
+                    birds_.push_back(bird);
+                    fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(bird);
+                }
+                break;
+            }
+            case 'G':
+            {
+                Ground *g = new Ground(body);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(g);
+                objects_.push_back(g);
+                break;
+            }
+            case 'P':
+            {
+                Pig *p = new Pig(body, fixture_def.shape->m_radius);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(p);
+                objects_.push_back(p);
+                break;
+            }
+            case 'W':
+            {
+                b2Vec2 dimensions = utils::DimensionsFromPolygon(static_cast<const b2PolygonShape *>(fixture_def.shape));
+                Wall *w = new Wall(body, dimensions.x, dimensions.y);
+                fixture_def.userData.pointer = reinterpret_cast<uintptr_t>(w);
+                objects_.push_back(w);
+                break;
+            }
+            default:
+                // Unknown type skip row
+                continue;
+            }
+
+            body->CreateFixture(&fixture_def);
+        }
+    }
+}
+
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
     if (birds_.size() == 0)
@@ -130,7 +275,7 @@ void Level::ResetBird()
     }
     b2Body *body = GetBird()->GetBody();
     body->SetGravityScale(0);
-    body->SetTransform(bird_starting_position_, 0);
+    body->SetTransform(bird_starting_position, 0);
 }
 
 bool ObjectRemover(Object *obj)
@@ -142,13 +287,13 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 {
 
     // Draw slingshot
-    sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
+    /*sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
     peliAlue.setFillColor(sf::Color::Blue);
     window.draw(peliAlue);
+    */
 
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
-    slingshot.setFillColor(sf::Color::Cyan);
-    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
     sf::Texture slingshot_texture;
     slingshot_texture.loadFromFile("../resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
@@ -210,7 +355,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 {
     sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
+    sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
 
     sf::Vector2f difference = mouse_position - slingshot_center;
 
@@ -249,5 +394,26 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
     else
     {
         return {0, 0};
+    }
+}
+
+void Level::SaveState(std::ofstream &file)
+{
+    // Write level name to first line
+    file << name_ << std::endl;
+    // Save available birds on the second line
+    for (auto bird : birds_)
+    {
+        file << bird->GetType();
+    }
+    file << std::endl;
+    // Save bird to second line
+    GetBird()->SaveState(file);
+    file << std::endl;
+    // Then save all the other objects
+    for (auto obj : objects_)
+    {
+        obj->SaveState(file);
+        file << std::endl;
     }
 }
