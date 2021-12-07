@@ -4,8 +4,9 @@
 int main()
 {
 
-    Game game = Game();
-    game.LoadLevel("");
+    Game game;
+    game.LoadIcon();
+    game.LoadLevel("../resources/levels/level1.ab");
     game.Start();
 
     return 0;

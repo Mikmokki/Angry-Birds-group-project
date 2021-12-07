@@ -1,9 +1,36 @@
 #include "game.hpp"
 
+Game::Game() : window_(sf::VideoMode(viewwidth, viewheight), "Angry Birds")
+{
+    window_.setFramerateLimit(framerate);
+}
+
 void Game::LoadLevel(std::string filename)
 {
-    b2Vec2 bsp(3.0f, 3.0f);
-    current_level_ = Level("Example", bsp);
+    //current_level_ = Level("Level 1");
+    std::ifstream file(filename);
+    if (file.rdstate() & (file.failbit | file.badbit))
+    {
+        std::cerr << "Level loading failed for file: " << filename << std::endl;
+    }
+    else
+    {
+        current_level_ = Level(file);
+    }
+}
+
+void Game::LoadIcon()
+{
+    sf::Image icon;
+    icon.loadFromFile("../resources/images/bird.png");
+    sf::Vector2u size = icon.getSize();
+    window_.setIcon(size.x, size.y, icon.getPixelsPtr());
+}
+
+void Game::SaveLevel()
+{
+    std::ofstream file = utils::OpenFileSafe("testi");
+    current_level_.SaveState(file);
 }
 
 void Game::Start()
@@ -12,12 +39,20 @@ void Game::Start()
     {
         std::cout << "You need to load a level before starting the game" << std::endl;
     }
-    sf::RenderWindow window(sf::VideoMode(viewwidth, viewheight), "Angry Birds");
-    window.setFramerateLimit(framerate);
 
-    sf::View game_view(window.getDefaultView());
+    sf::View game_view(window_.getDefaultView());
 
-    MainMenu menu = MainMenu();
+    MainMenu main_menu = MainMenu();
+
+    LevelSelector level_selector = LevelSelector();
+
+    PauseMenu pause_menu = PauseMenu();
+
+    auto IsMenuOpen = [&]()
+    {
+        return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen();
+    };
+
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
     pauseImage.loadFromFile("../resources/images/pause.png");
@@ -27,35 +62,34 @@ void Game::Start()
     bool has_just_settled = settled; // Has the world settled on the previous simulation step
     float direction = 0;             // Direction of the aiming arrow in degrees
     float power = 0;                 // Power of the aiming arrow (0-100)
-    while (window.isOpen())
+    while (window_.isOpen())
     {
-        sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
-        sf::Vector2f converted_mouse_position = window.mapPixelToCoords(mouse_position);
+        sf::Vector2f mouse_position = window_.mapPixelToCoords(sf::Mouse::getPosition(window_));
         sf::Event event;
-        while (window.pollEvent(event))
+        while (window_.pollEvent(event))
         {
             switch (event.type)
             {
             case sf::Event::EventType::Closed:
-                window.close();
+                window_.close();
                 break;
             case sf::Event::EventType::MouseButtonPressed:
 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
                     sf::Vector2f pause_position = pause.getPosition();
-                    if (converted_mouse_position.x < pause_position.x + 100 && converted_mouse_position.y < pause_position.y + 100)
+                    if (mouse_position.x < pause_position.x + 100 && mouse_position.y < pause_position.y + 100 && !IsMenuOpen())
                     {
 
-                        game_view = window.getDefaultView();
-                        window.setView(game_view);
-                        menu.Open();
+                        game_view = window_.getDefaultView();
+                        window_.setView(game_view);
+                        pause_menu.Open();
                     }
-                    else if (current_level_.GetBird()->IsThrown())
+                    else if (current_level_.GetBird()->IsThrown() && !IsMenuOpen())
                     {
                         current_level_.GetBird()->NewPower();
                     }
-                    else if (settled && !menu.IsOpen() && power != 0)
+                    else if (settled && !IsMenuOpen() && power != 0)
                     {
                         float x = cos(utils::DegreesToRadians(direction)) * power / 20;
                         float y = sin(utils::DegreesToRadians(direction)) * power / 20;
@@ -68,7 +102,7 @@ void Game::Start()
                 float width = static_cast<float>(event.size.width);
                 float height = static_cast<float>(event.size.height);
                 float aspect_ratio = width / height;
-                sf::View default_view = window.getDefaultView();
+                sf::View default_view = window_.getDefaultView();
                 sf::Vector2f default_size = default_view.getSize();
                 float default_aspect_ratio = default_size.x / default_size.y;
                 float k;
@@ -110,9 +144,9 @@ void Game::Start()
                         game_view.move(10, 0);
                     break;
                 case sf::Keyboard::Escape:
-                    game_view = window.getDefaultView();
-                    window.setView(game_view);
-                    menu.Open();
+                    game_view = window_.getDefaultView();
+                    window_.setView(game_view);
+                    pause_menu.Open();
                     break;
 
                 default:
@@ -120,53 +154,107 @@ void Game::Start()
                 }
             }
         }
-        window.clear(sf::Color::White);
-        if (menu.IsOpen())
+        window_.clear(sf::Color::White);
+        if (main_menu.IsOpen())
         {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1160 && converted_mouse_position.y >= 220 && converted_mouse_position.y <= 300)
+            level_selector.Open();
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                menu.Close();
+                if (mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
+                {
+                    main_menu.Close();
+                }
+                else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
+                {
+                    window_.close();
+                }
             }
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1136 && converted_mouse_position.y >= 520 && converted_mouse_position.y <= 580)
+            main_menu.Draw(window_);
+        }
+        else if (level_selector.IsOpen())
+        {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                window.close();
+                if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
+                {
+                    LoadLevel("../resources/levels/level1.ab");
+                    std::cout << "Loaded level 1" << std::endl;
+                    pause_menu.Close();
+                    level_selector.Close();
+                }
+                else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 400 && mouse_position.y <= 680)
+                {
+                    LoadLevel("../resources/levels/level2.ab");
+                    std::cout << "Loaded level 2" << std::endl;
+                    pause_menu.Close();
+                    level_selector.Close();
+                }
+                else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 400 && mouse_position.y <= 680)
+                {
+                    LoadLevel("../resources/levels/level3.ab");
+                    std::cout << "Loaded level 3" << std::endl;
+                    pause_menu.Close();
+                    level_selector.Close();
+                }
             }
-            menu.Draw(window);
+            level_selector.Draw(window_);
+        }
+        else if (pause_menu.IsOpen())
+        {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                if (mouse_position.x >= 1000 && mouse_position.x <= 1300 && mouse_position.y >= 200 && mouse_position.y <= 280)
+                {
+                    pause_menu.Close();
+                }
+                else if (mouse_position.x >= 1000 && mouse_position.x <= 1400 && mouse_position.y >= 300 && mouse_position.y <= 380)
+                {
+                    main_menu.Open();
+                }
+            }
+            pause_menu.Draw(window_);
         }
         else
         {
-            window.setView(game_view);
+            window_.setView(game_view);
             current_level_.GetBird()->UsePower();
 
             sf::Vector2f bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
-            sf::Vector2f default_center = window.getDefaultView().getCenter();
+            sf::Vector2f default_center = window_.getDefaultView().getCenter();
 
-            // Reset view when world settles
-            if (!settled || has_just_settled)
+            // Follow bird when thrown
+            if (!settled)
             {
                 // Used std min for the y since sfml coordinates are from top left downwards
-                game_view.setCenter(std::max(bird_position.x, window.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+                game_view.setCenter(std::max(bird_position.x, window_.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
             }
 
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
             bool prev_settled = settled;
-            settled = !current_level_.DrawLevel(window);
+            settled = !current_level_.DrawLevel(window_);
             has_just_settled = settled && !prev_settled;
             // Draw the aiming arrow
-            std::tuple<float, float> tuple = current_level_.DrawArrow(window);
+            std::tuple<float, float> tuple = current_level_.DrawArrow(window_);
             // Update arrow direction and power
             direction = std::get<0>(tuple);
             power = std::get<1>(tuple);
             bool bird_has_been_thrown = current_level_.GetBird()->IsThrown();
+            // Reset the bird and view when world settles after a throw
             if (has_just_settled && bird_has_been_thrown && current_level_.GetBird())
             {
                 current_level_.ResetBird();
+                // Update bird_position after reset
+                bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
+                game_view.setCenter(std::max(bird_position.x, window_.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+
+                // Save world to file
+                //SaveLevel();
             }
 
-            pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));
-            window.draw(pause);
+            pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
+            window_.draw(pause);
         }
-        window.display();
+        window_.display();
     }
 }
