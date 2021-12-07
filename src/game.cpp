@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include <string>
 
 Game::Game() : window_(sf::VideoMode(viewwidth, viewheight), "Angry Birds")
 {
@@ -7,7 +8,7 @@ Game::Game() : window_(sf::VideoMode(viewwidth, viewheight), "Angry Birds")
 
 void Game::LoadLevel(std::string filename)
 {
-    //current_level_ = Level("Level 1");
+    // current_level_ = Level("Level 1");
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
     {
@@ -53,10 +54,38 @@ void Game::Start()
         return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen();
     };
 
+    MainMenu menu = MainMenu();
+    sf::Font font;
+    font.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
+    sf::Text score;
+    score.setFont(font);
+    score.setFillColor(sf::Color::White);
+    score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
+    score.setCharacterSize(40);
+    sf::Text high_score;
+    high_score.setFont(font);
+    high_score.setFillColor(sf::Color::White);
+    high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+    high_score.setCharacterSize(40);
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
     pauseImage.loadFromFile("../resources/images/pause.png");
     pause.setTexture(&pauseImage);
+    sf::RectangleShape obj_images[4];
+    sf::Texture obj_textures[4];
+    obj_textures[0].loadFromFile("../resources/images/bird.png");
+    obj_textures[1].loadFromFile("../resources/images/bird2.png");
+    obj_textures[2].loadFromFile("../resources/images/bird3.png");
+    obj_textures[3].loadFromFile("../resources/images/pig.png");
+    sf::Text obj_indicators[4];
+    for (int i = 0; i < 4; i++)
+    {
+        obj_images[i].setSize(sf::Vector2f(100.0f, 100.0f));
+        obj_images[i].setTexture(&obj_textures[i]);
+        obj_indicators[i].setFont(font);
+        obj_indicators[i].setFillColor(sf::Color::White);
+        obj_indicators[i].setCharacterSize(20);
+    }
 
     bool settled = false;            // Is the world in a settled state (nothing is moving)
     bool has_just_settled = settled; // Has the world settled on the previous simulation step
@@ -154,7 +183,7 @@ void Game::Start()
                 }
             }
         }
-        window_.clear(sf::Color::White);
+        window_.clear(sf::Color::Blue);
         if (main_menu.IsOpen())
         {
             level_selector.Open();
@@ -249,10 +278,33 @@ void Game::Start()
                 game_view.setCenter(std::max(bird_position.x, window_.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
 
                 // Save world to file
-                //SaveLevel();
+                // SaveLevel();
+            }
+            score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
+            score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
+            high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
+            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetScore()));
+            pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
+            for (int i = 0; i < 4; i++)
+            {
+                if (current_level_.CountBirdTypes()[i] > 0)
+                {
+                    obj_images[i].setPosition(window_.mapPixelToCoords(sf::Vector2i(200 + i * 100, 0)));
+                    obj_indicators[i].setPosition(window_.mapPixelToCoords(sf::Vector2i(250 + i * 100, 100)));
+                    if (i != 3)
+                        obj_indicators[i].setString(std::to_string((current_level_.CountBirdTypes()[i])));
+                    else
+                    {
+                        obj_indicators[i].setString(std::to_string(current_level_.CountPigs()));
+                    }
+                    window_.draw(obj_images[i]);
+                    window_.draw(obj_indicators[i]);
+                }
             }
 
-            pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
+            window_.draw(score);
+            window_.draw(high_score);
+
             window_.draw(pause);
         }
         window_.display();
