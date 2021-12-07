@@ -1,5 +1,5 @@
 #include "game.hpp"
-
+#include <string>
 void Game::LoadLevel(std::string filename)
 {
     b2Vec2 bsp(3.0f, 3.0f);
@@ -18,10 +18,37 @@ void Game::Start()
     sf::View game_view(window.getDefaultView());
 
     MainMenu menu = MainMenu();
+    sf::Font font;
+    font.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
+    sf::Text score;
+    score.setFont(font);
+    score.setFillColor(sf::Color::White);
+    score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
+    score.setCharacterSize(40);
+    sf::Text high_score;
+    high_score.setFont(font);
+    high_score.setFillColor(sf::Color::White);
+    high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+    high_score.setCharacterSize(40);
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
     pauseImage.loadFromFile("../resources/images/pause.png");
     pause.setTexture(&pauseImage);
+    sf::RectangleShape obj_images[4];
+    sf::Texture obj_textures[4];
+    obj_textures[0].loadFromFile("../resources/images/bird.png");
+    obj_textures[1].loadFromFile("../resources/images/bird2.png");
+    obj_textures[2].loadFromFile("../resources/images/bird3.png");
+    obj_textures[3].loadFromFile("../resources/images/pig.png");
+    sf::Text obj_indicators[4];
+    for (int i = 0; i < 4; i++)
+    {
+        obj_images[i].setSize(sf::Vector2f(100.0f, 100.0f));
+        obj_images[i].setTexture(&obj_textures[i]);
+        obj_indicators[i].setFont(font);
+        obj_indicators[i].setFillColor(sf::Color::White);
+        obj_indicators[i].setCharacterSize(20);
+    }
 
     bool settled = false;            // Is the world in a settled state (nothing is moving)
     bool has_just_settled = settled; // Has the world settled on the previous simulation step
@@ -120,7 +147,7 @@ void Game::Start()
                 }
             }
         }
-        window.clear(sf::Color::White);
+        window.clear(sf::Color::Blue);
         if (menu.IsOpen())
         {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && converted_mouse_position.x >= 1006 && converted_mouse_position.x <= 1160 && converted_mouse_position.y >= 220 && converted_mouse_position.y <= 300)
@@ -163,8 +190,46 @@ void Game::Start()
             {
                 current_level_.ResetBird();
             }
-
+            score.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize().x * 0.7, 0)));
+            score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
+            high_score.setPosition(window.mapPixelToCoords(sf::Vector2i(window.getSize().x * 0.7, 40)));
+            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetScore()));
             pause.setPosition(window.mapPixelToCoords(sf::Vector2i(0, 0)));
+            if (std::get<0>(current_level_.CountBirdTypes()) > 0)
+            {
+                obj_images[0].setPosition(window.mapPixelToCoords(sf::Vector2i(200, 0)));
+                obj_indicators[0].setPosition(window.mapPixelToCoords(sf::Vector2i(250, 100)));
+                obj_indicators[0].setString(std::to_string(std::get<0>(current_level_.CountBirdTypes())));
+                window.draw(obj_images[0]);
+                window.draw(obj_indicators[0]);
+            }
+            if (std::get<1>(current_level_.CountBirdTypes()) > 0)
+            {
+                obj_images[1].setPosition(window.mapPixelToCoords(sf::Vector2i(300, 0)));
+                obj_indicators[1].setPosition(window.mapPixelToCoords(sf::Vector2i(350, 100)));
+                obj_indicators[1].setString(std::to_string(std::get<1>(current_level_.CountBirdTypes())));
+                window.draw(obj_images[1]);
+                window.draw(obj_indicators[1]);
+            }
+            if (std::get<2>(current_level_.CountBirdTypes()) > 0)
+            {
+                obj_images[2].setPosition(window.mapPixelToCoords(sf::Vector2i(400, 0)));
+                obj_indicators[2].setPosition(window.mapPixelToCoords(sf::Vector2i(450, 100)));
+                obj_indicators[2].setString(std::to_string(std::get<2>(current_level_.CountBirdTypes())));
+                window.draw(obj_images[2]);
+                window.draw(obj_indicators[2]);
+            }
+            if (current_level_.CountPigs() > 0)
+            {
+                obj_images[3].setPosition(window.mapPixelToCoords(sf::Vector2i(500, 0)));
+                obj_indicators[3].setPosition(window.mapPixelToCoords(sf::Vector2i(550, 100)));
+                obj_indicators[3].setString(std::to_string(current_level_.CountPigs()));
+                window.draw(obj_images[3]);
+                window.draw(obj_indicators[3]);
+            }
+            window.draw(score);
+            window.draw(high_score);
+
             window.draw(pause);
         }
         window.display();

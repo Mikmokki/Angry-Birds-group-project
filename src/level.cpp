@@ -10,6 +10,7 @@ Level::Level() : name_(""), bird_starting_position_(b2Vec2(0, 0)) {}
 
 Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_starting_position_(bird_starting_pos)
 {
+    high_score_ = 1290; // should be read from the file
     world_ = new b2World(gravity);
     // Creating ground box
     b2BodyDef groundBodyDef;
@@ -106,7 +107,41 @@ Level::Level(std::string name, b2Vec2 bird_starting_pos) : name_(name), bird_sta
     wall_body->CreateFixture(&wall_fixture);
     objects_.push_back(wall_);
 }
+std::tuple<int, int, int> Level::CountBirdTypes()
+{
+    int boomerang_count = 0;
+    int dropping_count = 0;
+    int speed_count = 0;
+    for (const auto &bird : birds_)
+    {
+        if (BoomerangBird *v = dynamic_cast<BoomerangBird *>(bird))
+        {
+            boomerang_count++;
+        }
+        if (DroppingBird *v = dynamic_cast<DroppingBird *>(bird))
+        {
+            dropping_count++;
+        }
+        if (SpeedBird *v = dynamic_cast<SpeedBird *>(bird))
+        {
+            speed_count++;
+        }
+    }
+    return std::tuple<int, int, int>(boomerang_count, dropping_count, speed_count);
+}
 
+int Level::CountPigs()
+{
+    int pig_count = 0;
+    for (const auto &obj : objects_)
+    {
+        if (Pig *v = dynamic_cast<Pig *>(obj))
+        {
+            pig_count++;
+        }
+        }
+    return pig_count;
+}
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
     if (birds_.size() == 0)
@@ -142,10 +177,6 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 {
 
     // Draw slingshot
-    sf::RectangleShape peliAlue(sf::Vector2f(1.f * viewwidth, 1.f * viewheight));
-    peliAlue.setFillColor(sf::Color::Blue);
-    window.draw(peliAlue);
-
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     slingshot.setFillColor(sf::Color::Cyan);
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position_);
@@ -204,6 +235,12 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
     window.draw(sprite);
     moving = moving || body->IsAwake();
+
+    if (score_ > high_score_)
+    {
+        high_score_ = score_;
+    }
+
     return moving;
 }
 

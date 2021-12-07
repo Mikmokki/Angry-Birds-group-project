@@ -8,6 +8,7 @@
 #include "bird.hpp"
 #include "converters.hpp"
 #include <iostream>
+#include <tuple>
 class Level
 {
 public:
@@ -38,9 +39,16 @@ public:
     {
         return score_;
     }
-
+    int GetHighScore()
+    {
+        return high_score_;
+    }
     void ThrowBird(int angle, b2Vec2 velocity);
 
+    std::tuple<int, int, int> CountBirdTypes();
+
+    int CountPigs();
+    
     void ResetBird();
 
     bool IsLevelEnded() { return level_ended_; }
@@ -58,6 +66,7 @@ private:
     b2World *world_;
     std::list<Object *> objects_;
     int score_ = 0;
+    int high_score_;
     bool level_ended_ = false;
 };
 
