@@ -6,7 +6,7 @@
 class Ground : public Object
 {
 public:
-    Ground(b2Body *body) : Object("../resources/images/ground.png", body)
+    Ground(b2Body *body) : Object("resources/images/ground.png", body)
     {
         float w = sprite_.getTextureRect().width;
         float h = sprite_.getTextureRect().height;

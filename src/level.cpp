@@ -326,7 +326,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
     sf::Texture slingshot_texture;
-    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
+    slingshot_texture.loadFromFile("resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
     slingshot.setOrigin(50, 50);
     slingshot.setPosition(slingshot_center);
@@ -414,7 +414,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0f);
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));
