@@ -368,7 +368,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
         sprite.setPosition(utils::B2ToSfCoords(pos));
-        sprite.setRotation(utils::RadiansToDegrees(body->GetAngle()));
+        sprite.setRotation(utils::RadiansToDegrees(body->GetAngle()) * -1.0f);
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }
@@ -377,7 +377,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     b2Vec2 pos = body->GetPosition();
     sf::Sprite sprite = GetBird()->GetSprite();
     sprite.setPosition(utils::B2ToSfCoords(pos));
-    sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
+    sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()) * -1.0f);
     window.draw(sprite);
     moving = moving || body->IsAwake();
 
