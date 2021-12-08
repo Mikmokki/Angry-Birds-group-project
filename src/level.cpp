@@ -187,6 +187,7 @@ Level::Level(std::ifstream &file)
 
             int shape_type;
             fixture >> shape_type >> _;
+
             // The shapes need to live in the outer scope here so the fixture can see them
             b2CircleShape circle;
             b2PolygonShape polygon;
@@ -332,16 +333,19 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     slingshot.setPosition(slingshot_center);
     window.draw(slingshot);
 
-    for (b2ContactEdge *ce = GetBird()->GetBody()->GetContactList(); ce; ce = ce->next)
+    for (b2Contact *ce = world_->GetContactList(); ce; ce = ce->GetNext())
     {
 
-        b2Contact *c = ce->contact;
+        b2Contact *c = ce;
 
         Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
         Object *objB = reinterpret_cast<Object *>(c->GetFixtureB()->GetUserData().pointer);
 
-        score_ = score_ + objA->TryToDestroy();
-        score_ = score_ + objB->TryToDestroy();
+        score_ = score_ + objA->TryToDestroy(objB->GetBody()->GetLinearVelocity().Length());
+        score_ = score_ + objB->TryToDestroy(objA->GetBody()->GetLinearVelocity().Length());
+
+        //std::cout << "A inertia:" << objA->GetBody()->GetInertia() << std::endl;
+        // std::cout << "B inertia:" << objB->GetBody()->GetInertia() << std::endl;
     }
 
     for (auto ob : objects_)
@@ -358,7 +362,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         !IsLevelEnded())
     {
         level_ended_ = true;
-        score_ = score_ + (birds_.size() - 1) * 1000;
+        score_ = score_ + (static_cast<int>(birds_.size()) - 1) * 1000;
     }
     // Draw box2d objects
     bool moving = false;
@@ -368,7 +372,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         b2Vec2 pos = body->GetPosition();
         sf::Sprite sprite = it->GetSprite();
         sprite.setPosition(utils::B2ToSfCoords(pos));
-        sprite.setRotation(utils::RadiansToDegrees(body->GetAngle()));
+        sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
         window.draw(sprite);
         moving = moving || body->IsAwake();
     }

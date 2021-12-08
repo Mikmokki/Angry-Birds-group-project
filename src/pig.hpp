@@ -12,7 +12,7 @@ public:
         int h = sprite_.getTextureRect().height;
 
         sprite_.setScale(b2_radius * 2.0f * scale / (1.0f * w), b2_radius * 2.0f * scale / (1.0f * h));
-        sprite_.setOrigin(w / 2, h / 2);
+        sprite_.setOrigin(w / 2.f, h / 2.f);
         destruction_points_ = 500;
         destructable_ = true;
     };

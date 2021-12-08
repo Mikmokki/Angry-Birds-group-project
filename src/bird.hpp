@@ -14,7 +14,7 @@ public:
 
         sprite_.setScale(b2_radius * 2.0f * scale / (1.0f * w), b2_radius * 2.0f * scale / (1.0f * h));
 
-        sprite_.setOrigin(w / 2, h / 2);
+        sprite_.setOrigin(w / 2.f, h / 2.f);
     };
     void MakeSound()
     {
@@ -50,6 +50,10 @@ public:
     }
     virtual void UsePower(){};
     virtual char GetType() = 0;
+    int TryToDestroy(float power)
+    {
+        return 0;
+    }
 
 protected:
     const float bird_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius

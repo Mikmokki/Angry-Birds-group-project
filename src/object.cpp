@@ -58,3 +58,20 @@ void Object::SaveState(std::ofstream &file)
         fixture = fixture->GetNext();
     }
 }
+
+int Object::TryToDestroy(float power)
+{
+    if (power < 0.01f)
+    {
+        return 0;
+    }
+    std::cout << "power: " << power << " treshhold: " << destruction_threshold_ << " destroyed: " << destroyed << std::endl;
+    std::cout << "obj mass" << body_->GetMass() << std::endl;
+    destruction_threshold_ = destruction_threshold_ - power;
+    if (destructable_ && 0.f > destruction_threshold_)
+    {
+        destroyed = true;
+        return destruction_points_;
+    }
+    return 0;
+}

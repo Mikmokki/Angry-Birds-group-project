@@ -30,15 +30,7 @@ public:
 
     bool IsDestroyed() const { return destroyed; }
 
-    int TryToDestroy()
-    {
-        if (destructable_)
-        {
-            destroyed = true;
-            return destruction_points_;
-        }
-        return 0;
-    }
+    virtual int TryToDestroy(float power);
 
     void SaveState(std::ofstream &file);
 
@@ -51,7 +43,7 @@ protected:
     sf::Sprite sprite_;
     sf::Texture texture_;
     bool destructable_ = false;
-    float destruction_threshold_ = 0;
+    float destruction_threshold_ = 0.f;
     int destruction_points_ = 100;
 
 private:

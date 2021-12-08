@@ -13,7 +13,10 @@ public:
 
         sprite_.setScale(b2_w * 2.0f * scale / (1.0f * w), b2_h * 2.0f * scale / (1.0f * h));
 
-        sprite_.setOrigin(w / 2, h / 2);
+        sprite_.setOrigin(w / 2.f, h / 2.f);
+
+        destruction_threshold_ = 300.f;
+        destructable_ = true;
     };
 
     char GetType() { return 'W'; };
