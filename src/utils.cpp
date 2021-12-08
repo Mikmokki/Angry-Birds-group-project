@@ -82,7 +82,6 @@ namespace utils
         float min_w, max_w, min_h, max_h;
         min_w = max_w = min_h = max_h = 0;
         for (int i = 0; i < shape->m_count; i++)
-        //for (auto vertex : shape->m_vertices)
         {
             b2Vec2 vertex = shape->m_vertices[i];
             min_w = std::min(min_w, vertex.x);
