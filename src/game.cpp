@@ -67,7 +67,7 @@ void Game::Start()
     sf::Text high_score;
     high_score.setFont(font);
     high_score.setFillColor(sf::Color::White);
-    high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+    high_score.setString(std::string("High Score: ") + std::to_string(std::get<1>(current_level_.GetHighScore())));
     high_score.setCharacterSize(40);
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
@@ -315,7 +315,7 @@ void Game::Start()
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
             high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
-            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+            high_score.setString(std::string("High Score: ") + std::to_string(std::get<1>(current_level_.GetHighScore())));
             window_.draw(score);
             window_.draw(high_score);
             current_level_.DrawLevel(window_);
@@ -362,7 +362,7 @@ void Game::Start()
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
             high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 40)));
-            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+            high_score.setString(std::string("High Score: ") + std::to_string(std::get<1>(current_level_.GetHighScore())));
             pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
             for (int i = 0; i < 4; i++)
             {
@@ -390,11 +390,11 @@ void Game::Start()
         if (current_level_.IsLevelEnded() && settled)
         {
             // Save highscore and Open endscreen
-            int current = current_level_.GetHighScore();
-            std::list<int> high_scores = current_level_.UpdateHighScore();
+            int current = std::get<1>(current_level_.GetHighScore());
+            std::list<std::tuple<std::string, int>> high_scores = current_level_.UpdateHighScore("nickname");
             UpdateSavedHighScore(high_scores);
             //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
-            if (current != current_level_.GetHighScore())
+            if (current != std::get<1>(current_level_.GetHighScore()))
             {
                 end_screen.ShowHighScore();
             }
@@ -405,7 +405,7 @@ void Game::Start()
     }
 }
 
-void Game::UpdateSavedHighScore(std::list<int> high_scores)
+void Game::UpdateSavedHighScore(std::list<std::tuple<std::string, int>> high_scores)
 {
     const int line_to_update = 2;
     // Read all lines to memory, this shouldn't be a problem since save files are quite small
@@ -423,9 +423,9 @@ void Game::UpdateSavedHighScore(std::list<int> high_scores)
 
     std::stringstream high_scores_stream;
 
-    for (auto score : high_scores)
+    for (auto high_score : high_scores)
     {
-        high_scores_stream << score << ";";
+        high_scores_stream << "(" << std::get<0>(high_score) << ":" << std::get<1>(high_score) << ");";
     }
     // Replace second row
     lines[1] = high_scores_stream.str();
