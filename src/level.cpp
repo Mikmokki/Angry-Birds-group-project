@@ -303,6 +303,10 @@ Level::Level(std::ifstream &file)
 
             body->CreateFixture(&fixture_def);
         }
+        for (int i = 1; i < 4; i++)
+        {
+            star_tresholds_.push_back(((birds_.size() - CountPigs()) * 1000 + CountPigs() * 500) / i);
+        }
     }
 }
 

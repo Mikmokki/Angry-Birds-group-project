@@ -91,7 +91,6 @@ void Game::Start()
 
     bool settled = false;            // Is the world in a settled state (nothing is moving)
     bool has_just_settled = settled; // Has the world settled on the previous simulation step
-    bool has_player_won = false;     // Did player just win the level
     float direction = 0;             // Direction of the aiming arrow in degrees
     float power = 0;                 // Power of the aiming arrow (0-100)
     while (window_.isOpen())
@@ -211,7 +210,6 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
-                    bool has_player_won = false;
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -219,7 +217,6 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
-                    bool has_player_won = false;
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -227,7 +224,6 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
-                    bool has_player_won = false;
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -247,27 +243,28 @@ void Game::Start()
                     main_menu.Open();
                 }
             }
-            current_level_.DrawLevel(window_);
             pause_menu.Draw(window_);
         }
         else if (end_screen.IsOpen())
         {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                std::cout << mouse_position.x << "  " << mouse_position.y << std::endl;
                 if (mouse_position.x >= 620 && mouse_position.x <= 775 && mouse_position.y >= 485 && mouse_position.y <= 605)
                 {
                     end_screen.Close();
+                    main_menu.Open();
                 }
                 else if (mouse_position.x >= 835 && mouse_position.x <= 990 && mouse_position.y >= 490 && mouse_position.y <= 605)
                 {
                     int next_level = std::min(current_level_.GetLevelNumber() + 1, 3);
                     LoadLevel("../resources/levels/level" + std::to_string(next_level) + ".ab");
-                    bool has_player_won = false;
                     std::cout << "Loaded level " + next_level << std::endl;
                     end_screen.Close();
                 }
             }
+            game_view = window_.getDefaultView();
+                        window_.setView(game_view);
+            current_level_.DrawLevel(window_);
             end_screen.Draw(window_);
         }
         else
@@ -334,16 +331,13 @@ void Game::Start()
 
             window_.draw(pause);
         }
-
-        if (current_level_.IsLevelEnded())
+        
+        if (current_level_.IsLevelEnded() && settled)
         {
-            if (!has_player_won)
-            {
-                // Save highscore and Open endscreen
-                std::list<int> high_scores = current_level_.UpdateHighScore();
-                UpdateSavedHighScore(high_scores);
-                has_player_won = true; // Only update highscores once
-            }
+            // Save highscore and Open endscreen
+            std::list<int> high_scores = current_level_.UpdateHighScore();
+            UpdateSavedHighScore(high_scores);
+            end_screen.SelectStars(current_level_.GetStars());
             end_screen.Open();
         }
         window_.display();
