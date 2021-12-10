@@ -46,6 +46,11 @@ public:
 
     int GetHighScore();
 
+    int GetLevelNumber()
+    {
+        return level_number_;
+    }
+
     std::list<int> UpdateHighScore();
 
     void ThrowBird(int angle, b2Vec2 velocity);
@@ -66,6 +71,12 @@ public:
 
     void SaveState(std::ofstream &file);
 
+    int GetStars()
+    {
+        return std::count_if(star_tresholds_.begin(), star_tresholds_.end(), [this](int i)
+                             { return GetScore() >= i; });
+    }
+
 private:
     std::string name_;
     std::list<Bird *> birds_;
@@ -74,6 +85,8 @@ private:
     int score_ = 0;
     std::list<int> high_scores_;
     bool level_ended_ = false;
+    int level_number_;
+    std::list<int> star_tresholds_;
 };
 
 #endif // ANGRY_BIRDS_LEVEL

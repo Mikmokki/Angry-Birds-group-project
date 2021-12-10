@@ -10,6 +10,7 @@ Level::Level() : name_("") {}
 
 Level::Level(std::string name) : name_(name)
 {
+
     std::list<int> high_scores(1290); // should be read from the file
     high_scores_ = high_scores;
     world_ = new b2World(gravity);
@@ -159,7 +160,7 @@ Level::Level(std::ifstream &file)
             std::getline(file, name);
             name_ = name;
         }
-
+        level_number_ = std::stoi(name_.substr(5, name_.size() - 3));
         // Read highscores from second line
         std::string high_scores_string;
         std::getline(file, high_scores_string);
@@ -303,15 +304,15 @@ Level::Level(std::ifstream &file)
 
             body->CreateFixture(&fixture_def);
         }
+        for (int i = 1; i < 4; i++)
+        {
+            star_tresholds_.push_back(((birds_.size() - CountPigs()) * 1000 + CountPigs() * 500) / i);
+        }
     }
 }
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
-    if (birds_.size() == 0)
-    {
-        level_ended_ = true;
-    }
     if (!IsLevelEnded())
     {
         b2Body *body = GetBird()->GetBody();
@@ -326,6 +327,10 @@ void Level::ResetBird()
     if (birds_.size() > 1)
     {
         birds_.pop_front();
+    }
+    if (birds_.front()->IsThrown())
+    {
+        level_ended_ = true;
     }
     b2Body *body = GetBird()->GetBody();
     body->SetGravityScale(0);
