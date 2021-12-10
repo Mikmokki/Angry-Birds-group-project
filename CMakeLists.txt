@@ -9,6 +9,8 @@ set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 set(BOX2D_DIR "${CMAKE_SOURCE_DIR}/libs/box2d")
 set(SFML_DIR "${CMAKE_SOURCE_DIR}/libs/SFML")
 
+option(BUILD_TESTS "Build the tests" ON)
+
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${BOX2D_DIR}")
 include_directories (/usr/include/freetype2)
@@ -34,6 +36,10 @@ SET(BOX2D_BUILD_UNIT_TESTS false CACHE BOOL "skip building unit tests" FORCE)
 # SFML
 add_subdirectory("${SFML_DIR}" SFML)
 target_link_libraries(angry_birds sfml-graphics sfml-audio sfml-network sfml-system sfml-window)
+
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
 
 if(WIN32)
     # Copy openal dynamic lib to build folder in order to get sounds working
