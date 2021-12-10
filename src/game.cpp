@@ -50,7 +50,7 @@ void Game::Start()
 
     PauseMenu pause_menu = PauseMenu();
 
-    LevelEndMenu end_screen = LevelEndMenu();
+    LevelEndMenu end_screen = LevelEndMenu(0);
 
     auto IsMenuOpen = [&]()
     {
@@ -210,6 +210,7 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
+                    end_screen.SetLevel(1);
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -217,6 +218,7 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
+                    end_screen.SetLevel(2);
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -224,6 +226,7 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
+                    end_screen.SetLevel(3);
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -249,21 +252,54 @@ void Game::Start()
         {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                if (mouse_position.x >= 620 && mouse_position.x <= 775 && mouse_position.y >= 485 && mouse_position.y <= 605)
+                if (current_level_.GetLevelNumber() == 3)
                 {
-                    end_screen.Close();
-                    main_menu.Open();
+                    if (mouse_position.x >= 600 && mouse_position.x <= 775 && mouse_position.y >= 530 && mouse_position.y <= 645)
+                    {
+                        end_screen.Close();
+                        main_menu.Open();
+                    }
+                    else if (mouse_position.x >= 864 && mouse_position.x <= 1025 && mouse_position.y >= 520 && mouse_position.y <= 645)
+                    {
+                        //  int next_level = std::min(current_level_.GetLevelNumber() + 1, 3);
+                        LoadLevel("../resources/levels/level" + std::to_string(current_level_.GetLevelNumber()) + ".ab");
+                        std::cout << "Loaded level " + current_level_.GetLevelNumber() << std::endl;
+                        end_screen.SetLevel(current_level_.GetLevelNumber());
+                        end_screen.Close();
+                    }
                 }
-                else if (mouse_position.x >= 835 && mouse_position.x <= 990 && mouse_position.y >= 490 && mouse_position.y <= 605)
+                else
                 {
-                    int next_level = std::min(current_level_.GetLevelNumber() + 1, 3);
-                    LoadLevel("../resources/levels/level" + std::to_string(next_level) + ".ab");
-                    std::cout << "Loaded level " + next_level << std::endl;
-                    end_screen.Close();
+                    if (mouse_position.x >= 520 && mouse_position.x <= 675 && mouse_position.y >= 515 && mouse_position.y <= 597)
+                    {
+                        end_screen.Close();
+                        main_menu.Open();
+                    }
+                    else if (mouse_position.x >= 925 && mouse_position.x <= 1080 && mouse_position.y >= 515 && mouse_position.y <= 635)
+                    {
+                        int next_level = current_level_.GetLevelNumber() + 1;
+                        LoadLevel("../resources/levels/level" + std::to_string(next_level) + ".ab");
+                        std::cout << "Loaded level " + next_level << std::endl;
+                        end_screen.SetLevel(next_level);
+                        end_screen.Close();
+                    }
+                    else if (mouse_position.x >= 715 && mouse_position.x <= 879 && mouse_position.y >= 515 && mouse_position.y <= 640)
+                    {
+                        LoadLevel("../resources/levels/level" + std::to_string(current_level_.GetLevelNumber()) + ".ab");
+                        std::cout << "Loaded level " + current_level_.GetLevelNumber() << std::endl;
+                        end_screen.SetLevel(current_level_.GetLevelNumber());
+                        end_screen.Close();
+                    }
                 }
             }
             game_view = window_.getDefaultView();
-                        window_.setView(game_view);
+            window_.setView(game_view);
+            score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
+            score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
+            high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
+            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+            window_.draw(score);
+            window_.draw(high_score);
             current_level_.DrawLevel(window_);
             end_screen.Draw(window_);
         }
@@ -331,12 +367,18 @@ void Game::Start()
 
             window_.draw(pause);
         }
-        
+
         if (current_level_.IsLevelEnded() && settled)
         {
             // Save highscore and Open endscreen
+            int current = current_level_.GetHighScore();
             std::list<int> high_scores = current_level_.UpdateHighScore();
             UpdateSavedHighScore(high_scores);
+         //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
+            if (current != current_level_.GetHighScore())
+            {
+                end_screen.ShowHighScore();
+            }
             end_screen.SelectStars(current_level_.GetStars());
             end_screen.Open();
         }

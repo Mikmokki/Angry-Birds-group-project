@@ -73,8 +73,8 @@ public:
 
     int GetStars()
     {
-       return std::count_if(star_tresholds_.begin(), star_tresholds_.end(), [this](int i)
-                      { return GetScore() >= i; });
+        return std::count_if(star_tresholds_.begin(), star_tresholds_.end(), [this](int i)
+                             { return GetScore() >= i; });
     }
 
 private:
