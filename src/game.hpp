@@ -16,7 +16,7 @@ public:
     Game();
     void LoadLevel(std::string filename);
     void SaveLevel();
-    void UpdateSavedHighScore(std::list<int> high_scores);
+    void UpdateSavedHighScore(std::list<std::tuple<std::string, int>> high_scores);
     void LoadIcon();
     void Start();
 
