@@ -12,6 +12,8 @@
 #include "converters.hpp"
 #include <iostream>
 #include <tuple>
+#include <map>
+
 class Level
 {
 public:
@@ -44,14 +46,16 @@ public:
         return score_;
     }
 
-    int GetHighScore();
+    std::tuple<std::string, int> GetHighScore();
+
+    std::list<std::tuple<std::string, int>> GetHighScores() { return high_scores_; };
 
     int GetLevelNumber()
     {
         return level_number_;
     }
 
-    std::list<int> UpdateHighScore();
+    std::list<std::tuple<std::string, int>> UpdateHighScore(std::string nickname);
 
     void ThrowBird(int angle, b2Vec2 velocity);
 
@@ -83,7 +87,7 @@ private:
     b2World *world_;
     std::list<Object *> objects_;
     int score_ = 0;
-    std::list<int> high_scores_;
+    std::list<std::tuple<std::string, int>> high_scores_;
     bool level_ended_ = false;
     int level_number_;
     std::list<int> star_tresholds_;
