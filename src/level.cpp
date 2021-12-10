@@ -366,8 +366,8 @@ bool Level::DrawLevel(sf::RenderWindow &window)
         score_ = score_ + objA->TryToDestroy(objB->GetBody()->GetLinearVelocity().Length());
         score_ = score_ + objB->TryToDestroy(objA->GetBody()->GetLinearVelocity().Length());
 
-        //std::cout << "A inertia:" << objA->GetBody()->GetInertia() << std::endl;
-        // std::cout << "B inertia:" << objB->GetBody()->GetInertia() << std::endl;
+        // std::cout << "A inertia:" << objA->GetBody()->GetInertia() << std::endl;
+        //  std::cout << "B inertia:" << objB->GetBody()->GetInertia() << std::endl;
     }
 
     for (auto ob : objects_)
@@ -379,8 +379,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     }
 
     objects_.remove_if(ObjectRemover);
-    if (std::all_of(objects_.begin(), objects_.end(), [](Object *obj)
-                    { return !obj->IsDestructable(); }) &&
+    if (CountPigs() == 0 &&
         !IsLevelEnded())
     {
         level_ended_ = true;
@@ -408,7 +407,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 
     bool birdOutOfBounds = !(pos.x < (viewwidth * 1.5f) / scale && pos.x > -1);
 
-        if (birdOutOfBounds)
+    if (birdOutOfBounds)
     {
         body->SetLinearVelocity(b2Vec2(0, 0));
         body->SetAngularVelocity(0.f);
