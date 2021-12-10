@@ -151,6 +151,13 @@ void Game::Start()
                 game_view.setCenter(default_view.getCenter());
                 break;
             }
+            case sf::Event::TextEntered:
+            {
+                if (main_menu.IsOpen())
+                {
+                    main_menu.ChangeNickname(event.text.unicode);
+                }
+            }
             case sf::Event::EventType::KeyPressed:
 
                 switch (event.key.code)

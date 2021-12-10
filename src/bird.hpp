@@ -26,7 +26,7 @@ public:
         }
 
         sound.setBuffer(soundBuffer);
-        sound.setVolume(50);
+        sound.setVolume(20);
         sound.play();
 
         std::cout << "tried to make sound " << sound.getStatus() << std::endl;
