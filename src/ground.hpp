@@ -8,8 +8,8 @@ class Ground : public Object
 public:
     Ground(b2Body *body) : Object("resources/images/ground.png", body)
     {
-        float w = sprite_.getTextureRect().width;
-        float h = sprite_.getTextureRect().height;
+        float w = static_cast<float>(sprite_.getTextureRect().width);
+        float h = static_cast<float>(sprite_.getTextureRect().height);
         float TEXTURE_SCALE = 64.0f;
 
         sprite_.setScale(50.0f * TEXTURE_SCALE / w, 10.0f * TEXTURE_SCALE / h);
@@ -20,6 +20,10 @@ public:
     };
 
     virtual char GetType() { return 'G'; };
+    int TryToDestroy(float power)
+    {
+        return 0;
+    }
 
 private:
 };

@@ -263,6 +263,7 @@ void Game::Start()
             current_level_.GetWorld()
                 ->Step(time_step, velocity_iterations, position_iterations);
             bool prev_settled = settled;
+
             settled = !current_level_.DrawLevel(window_);
             has_just_settled = settled && !prev_settled;
             // Draw the aiming arrow
