@@ -27,29 +27,15 @@ namespace utils
     {
         char buf[4096]; // never know how much is needed
         std::string str = cwd(buf, sizeof buf);
-        //std::string_view strW(str);
-
-        auto koko = str.size();
+        auto string_size = str.size();
         std::string ab = "angry-birds-group-2";
-
-        /* auto subStr = str.substr(koko - 3, 3);
-        std::cout << "substr: " << subStr << std::endl;
-        if (subStr != "src")
-        {
-            std::cout << "CWD: " << ab.size() << std::endl;
-            std::cout << "../../" << std::endl;
-            return "../../";
-        }
-        std::cout << "CWD: " << cwd(buf, sizeof buf) << std::endl;
-        std::cout << "../" << std::endl;
-        return "../"; */
-        auto subStr = str.substr(koko - 3, 3);
+        auto subStr = str.substr(string_size - 3, 3);
         while (true)
         {
 
             str = cwd(buf, sizeof buf);
-            koko = str.size();
-            subStr = str.substr(koko - 19, 19);
+            string_size = str.size();
+            subStr = str.substr(string_size - 19, 19);
 
             if (subStr == ab)
             {

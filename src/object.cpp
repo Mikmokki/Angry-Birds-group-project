@@ -3,10 +3,7 @@
 
 Object::Object(std::string texture_file, b2Body *body) : body_(body)
 {
-    if (!texture_.loadFromFile(texture_file))
-    {
-        std::cout << "Texture loading failed" << std::endl; // maybe should throw an error
-    }
+    texture_.loadFromFile(texture_file);
     sprite_.setTexture(texture_);
 }
 
@@ -51,7 +48,6 @@ void Object::SaveState(std::ofstream &file)
             file << polygon->m_count << s << polygon->m_radius << s;
             break;
         default:
-            std::cout << "Unknown type for shape" << std::endl;
             continue;
         }
         file << fixture->GetDensity() << s << fixture->GetFriction() << s << fixture->GetRestitution() << s;
@@ -65,8 +61,6 @@ int Object::TryToDestroy(float power)
     {
         return 0;
     }
-    std::cout << "power: " << power << " treshhold: " << destruction_threshold_ << " destroyed: " << destroyed << std::endl;
-    std::cout << "obj mass" << body_->GetMass() << std::endl;
     destruction_threshold_ = destruction_threshold_ - power;
     if (destructable_ && 0.f > destruction_threshold_)
     {
@@ -74,4 +68,11 @@ int Object::TryToDestroy(float power)
         return destruction_points_;
     }
     return 0;
+}
+void Object::MakeSound()
+{
+    punch_sound_buffer_.loadFromFile("resources/sounds/punch.wav");
+    punch_sound_.setBuffer(punch_sound_buffer_);
+    punch_sound_.setVolume(100);
+    punch_sound_.play();
 }

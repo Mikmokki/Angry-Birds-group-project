@@ -5,6 +5,7 @@
 #include "wall.hpp"
 #include <algorithm>
 #include <iostream>
+#include <SFML/Audio.hpp>
 
 Level::Level() : name_("") {}
 
@@ -313,6 +314,7 @@ Level::Level(std::ifstream &file)
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
+
     if (!IsLevelEnded())
     {
         b2Body *body = GetBird()->GetBody();
@@ -324,6 +326,7 @@ void Level::ThrowBird(int angle, b2Vec2 velocity)
 }
 void Level::ResetBird()
 {
+
     if (birds_.size() > 1)
     {
         birds_.pop_front();
@@ -344,7 +347,6 @@ bool ObjectRemover(Object *obj)
 
 bool Level::DrawLevel(sf::RenderWindow &window)
 {
-
     // Draw slingshot
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
@@ -357,7 +359,6 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 
     for (b2Contact *ce = world_->GetContactList(); ce; ce = ce->GetNext())
     {
-
         b2Contact *c = ce;
 
         Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
@@ -365,15 +366,20 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 
         score_ = score_ + objA->TryToDestroy(objB->GetBody()->GetLinearVelocity().Length());
         score_ = score_ + objB->TryToDestroy(objA->GetBody()->GetLinearVelocity().Length());
-
-        // std::cout << "A inertia:" << objA->GetBody()->GetInertia() << std::endl;
-        //  std::cout << "B inertia:" << objB->GetBody()->GetInertia() << std::endl;
     }
 
     for (auto ob : objects_)
     {
         if (ob->IsDestroyed())
         {
+            if (Pig *p = dynamic_cast<Pig *>(ob))
+            {
+                p->MakeSound();
+            }
+            else
+            {
+                ob->MakeSound();
+            }
             world_->DestroyBody(ob->GetBody());
         }
     }

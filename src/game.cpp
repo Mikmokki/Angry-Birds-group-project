@@ -9,7 +9,6 @@ Game::Game() : window_(sf::VideoMode(viewwidth, viewheight), "Angry Birds")
 void Game::LoadLevel(std::string filename)
 {
     victory_achieved_ = 0; // Reset victory sound status
-    // current_level_ = Level("Level 1");
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
     {
@@ -60,11 +59,6 @@ void Game::Start()
     bg_sprite_.setScale(1, 3);
     bg_sprite_.setOrigin(0, 2 * background_texture_.getSize().y - 450); // background_texture_.getSize().y - viewheight - 25
 
-    if (current_level_.GetName() == "")
-    {
-        std::cout << "You need to load a level before starting the game" << std::endl;
-    }
-
     sf::View game_view(window_.getDefaultView());
 
     MainMenu main_menu = MainMenu();
@@ -114,6 +108,8 @@ void Game::Start()
         obj_indicators[i].setFont(font);
         obj_indicators[i].setFillColor(sf::Color::White);
         obj_indicators[i].setCharacterSize(20);
+        obj_indicators[i].setOutlineColor(sf::Color::Black);
+        obj_indicators[i].setOutlineThickness(3.0f);
     }
 
     bool settled = false;            // Is the world in a settled state (nothing is moving)
@@ -237,7 +233,6 @@ void Game::Start()
                 if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("resources/levels/level1.ab");
-                    std::cout << "Loaded level 1" << std::endl;
                     end_screen.SetLevel(1);
                     pause_menu.Close();
                     end_screen.Close();
@@ -246,7 +241,6 @@ void Game::Start()
                 else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("resources/levels/level2.ab");
-                    std::cout << "Loaded level 2" << std::endl;
                     end_screen.SetLevel(2);
                     pause_menu.Close();
                     end_screen.Close();
@@ -255,7 +249,6 @@ void Game::Start()
                 else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("resources/levels/level3.ab");
-                    std::cout << "Loaded level 3" << std::endl;
                     end_screen.SetLevel(3);
                     pause_menu.Close();
                     end_screen.Close();
@@ -294,7 +287,6 @@ void Game::Start()
                     {
                         //  int next_level = std::min(current_level_.GetLevelNumber() + 1, 3);
                         LoadLevel("resources/levels/level" + std::to_string(current_level_.GetLevelNumber()) + ".ab");
-                        std::cout << "Loaded level " + current_level_.GetLevelNumber() << std::endl;
                         end_screen.SetLevel(current_level_.GetLevelNumber());
                         end_screen.Close();
                     }
@@ -310,14 +302,12 @@ void Game::Start()
                     {
                         int next_level = current_level_.GetLevelNumber() + 1;
                         LoadLevel("resources/levels/level" + std::to_string(next_level) + ".ab");
-                        std::cout << "Loaded level " + next_level << std::endl;
                         end_screen.SetLevel(next_level);
                         end_screen.Close();
                     }
                     else if (mouse_position.x >= 715 && mouse_position.x <= 879 && mouse_position.y >= 515 && mouse_position.y <= 640)
                     {
                         LoadLevel("resources/levels/level" + std::to_string(current_level_.GetLevelNumber()) + ".ab");
-                        std::cout << "Loaded level " + current_level_.GetLevelNumber() << std::endl;
                         end_screen.SetLevel(current_level_.GetLevelNumber());
                         end_screen.Close();
                     }
@@ -404,7 +394,6 @@ void Game::Start()
         {
             if (victory_achieved_ == 0)
             {
-                std::cout << "Play victory sound" << std::endl;
                 victory_sound.play();
                 victory_achieved_ = 1;
             }
@@ -413,7 +402,6 @@ void Game::Start()
             int current = current_level_.GetHighScore();
             std::list<int> high_scores = current_level_.UpdateHighScore();
             UpdateSavedHighScore(high_scores);
-            //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
             if (current != current_level_.GetHighScore())
             {
                 end_screen.ShowHighScore();
