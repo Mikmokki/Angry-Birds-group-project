@@ -5,6 +5,18 @@
 #include <box2d/box2d.h>
 #include "math.h"
 #define M_PI 3.14159265358979323846
+#include <iostream>
+
+#ifdef _WIN32
+#include <direct.h>
+// MSDN recommends against using getcwd & chdir names
+#define cwd _getcwd
+#define cd _chdir
+#else
+#include "unistd.h"
+#define cwd getcwd
+#define cd chdir
+#endif
 
 const int viewwidth = 1600;
 const int viewheight = 900;
@@ -26,6 +38,8 @@ namespace utils
     float RadiansToDegrees(const float radians);
 
     float DegreesToRadians(const float degrees);
+
+    void PathPrefix();
 
 }
 

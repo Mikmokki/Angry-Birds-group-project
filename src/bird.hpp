@@ -19,7 +19,7 @@ public:
     void MakeSound()
     {
 
-        if (!soundBuffer.loadFromFile("../resources/sounds/kukko.wav"))
+        if (!soundBuffer.loadFromFile("resources/sounds/kukko.wav"))
         {
             std::cout << "bird failed to load sound " << std::endl;
             return;
@@ -65,7 +65,7 @@ protected:
 class BoomerangBird : public Bird
 {
 public:
-    BoomerangBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird.png", b2_r){};
+    BoomerangBird(b2Body *body, float b2_r) : Bird(body, "resources/images/bird.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ > 0)
@@ -81,7 +81,7 @@ public:
 class DroppingBird : public Bird
 {
 public:
-    DroppingBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird2.png", b2_r){};
+    DroppingBird(b2Body *body, float b2_r) : Bird(body, "resources/images/bird2.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ > 0)
@@ -96,7 +96,7 @@ public:
 class SpeedBird : public Bird
 {
 public:
-    SpeedBird(b2Body *body, float b2_r) : Bird(body, "../resources/images/bird3.png", b2_r){};
+    SpeedBird(b2Body *body, float b2_r) : Bird(body, "resources/images/bird3.png", b2_r){};
     virtual void UsePower()
     {
         if (power_left_ >= max_power_ - 2)

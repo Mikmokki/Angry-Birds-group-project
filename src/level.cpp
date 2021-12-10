@@ -343,7 +343,7 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
     sf::Texture slingshot_texture;
-    slingshot_texture.loadFromFile("../resources/images/slingshot.png");
+    slingshot_texture.loadFromFile("resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
     slingshot.setOrigin(50, 50);
     slingshot.setPosition(slingshot_center);

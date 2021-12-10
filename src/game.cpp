@@ -24,7 +24,7 @@ void Game::LoadLevel(std::string filename)
 void Game::LoadIcon()
 {
     sf::Image icon;
-    icon.loadFromFile("../resources/images/bird.png");
+    icon.loadFromFile("resources/images/bird.png");
     sf::Vector2u size = icon.getSize();
     window_.setIcon(size.x, size.y, icon.getPixelsPtr());
 }
@@ -57,7 +57,7 @@ void Game::Start()
 
     MainMenu menu = MainMenu();
     sf::Font font;
-    font.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
+    font.loadFromFile("resources/fonts/Raleway-Medium.ttf");
     sf::Text score;
     score.setFont(font);
     score.setFillColor(sf::Color::White);
@@ -70,14 +70,14 @@ void Game::Start()
     high_score.setCharacterSize(40);
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
-    pauseImage.loadFromFile("../resources/images/pause.png");
+    pauseImage.loadFromFile("resources/images/pause.png");
     pause.setTexture(&pauseImage);
     sf::RectangleShape obj_images[4];
     sf::Texture obj_textures[4];
-    obj_textures[0].loadFromFile("../resources/images/bird.png");
-    obj_textures[1].loadFromFile("../resources/images/bird2.png");
-    obj_textures[2].loadFromFile("../resources/images/bird3.png");
-    obj_textures[3].loadFromFile("../resources/images/pig.png");
+    obj_textures[0].loadFromFile("resources/images/bird.png");
+    obj_textures[1].loadFromFile("resources/images/bird2.png");
+    obj_textures[2].loadFromFile("resources/images/bird3.png");
+    obj_textures[3].loadFromFile("resources/images/pig.png");
     sf::Text obj_indicators[4];
     for (int i = 0; i < 4; i++)
     {
@@ -208,21 +208,21 @@ void Game::Start()
             {
                 if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
-                    LoadLevel("../resources/levels/level1.ab");
+                    LoadLevel("resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
                     pause_menu.Close();
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
-                    LoadLevel("../resources/levels/level2.ab");
+                    LoadLevel("resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
                     pause_menu.Close();
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
-                    LoadLevel("../resources/levels/level3.ab");
+                    LoadLevel("resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
                     pause_menu.Close();
                     level_selector.Close();

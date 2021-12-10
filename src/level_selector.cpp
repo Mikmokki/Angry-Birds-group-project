@@ -14,7 +14,7 @@ LevelSelector::LevelSelector()
     }
     for (int i = 0; i < level_amount_; i++)
     {
-        preview_textures_[i].loadFromFile("../resources/images/" + preview_filenames[i]);
+        preview_textures_[i].loadFromFile("resources/images/" + preview_filenames[i]);
         preview_images_[i].setTexture(&preview_textures_[i]);
         preview_images_[i].setSize(sf::Vector2f(viewwidth, viewheight) / 5.0f);
         preview_images_[i].setPosition(100 + i * 500, 400);

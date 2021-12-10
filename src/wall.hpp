@@ -6,7 +6,7 @@
 class Wall : public Object
 {
 public:
-    Wall(b2Body *body, float b2_w, float b2_h) : Object("../resources/images/box.png", body)
+    Wall(b2Body *body, float b2_w, float b2_h) : Object("resources/images/box.png", body)
     {
         int w = sprite_.getTextureRect().width;
         int h = sprite_.getTextureRect().height;
