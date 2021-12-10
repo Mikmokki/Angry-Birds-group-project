@@ -414,7 +414,7 @@ std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
 
         float rotation = -direction;
 
-        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0f);
+        float length = std::min(sqrt(pow(difference.x, 2) + pow(difference.y, 2)), 100.0);
 
         sf::RectangleShape line(sf::Vector2f(length, 5));
         line.setFillColor(sf::Color(0, 0, 0));
