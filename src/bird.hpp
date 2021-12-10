@@ -33,12 +33,7 @@ public:
         return;
     }
 
-    ~Bird()
-    {
-
-        sound.stop();
-    }
-    void Throw()
+     void Throw()
     {
         thrown_ = true;
     }

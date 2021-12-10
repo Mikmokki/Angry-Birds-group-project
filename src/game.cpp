@@ -257,7 +257,7 @@ void Game::Start()
             if (!settled)
             {
                 // Used std min for the y since sfml coordinates are from top left downwards
-                game_view.setCenter(std::max(bird_position.x, window_.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
+                game_view.setCenter(std::min(std::max(bird_position.x, window_.getDefaultView().getCenter().x), viewwidth * 1.f), std::min(bird_position.y, default_center.y));
             }
 
             current_level_.GetWorld()
@@ -283,9 +283,9 @@ void Game::Start()
                 // Save world to file
                 // SaveLevel();
             }
-            score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
+            score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
-            high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
+            high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 40)));
             high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
             pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
             for (int i = 0; i < 4; i++)

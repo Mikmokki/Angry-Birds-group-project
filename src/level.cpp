@@ -400,9 +400,17 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     sprite.setPosition(utils::B2ToSfCoords(pos));
     sprite.setRotation(utils::RadiansToDegrees(-body->GetAngle()));
     window.draw(sprite);
-    moving = moving || body->IsAwake();
 
-    return moving;
+    bool birdOutOfBounds = !(pos.x < (viewwidth * 1.5f) / scale && pos.x > -1);
+
+        if (birdOutOfBounds)
+    {
+        body->SetLinearVelocity(b2Vec2(0, 0));
+        body->SetAngularVelocity(0.f);
+        return false || moving;
+    }
+
+    return moving || body->IsAwake();
 }
 
 std::tuple<float, float> Level::DrawArrow(sf::RenderWindow &window)
