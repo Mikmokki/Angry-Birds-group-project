@@ -8,6 +8,7 @@ Game::Game() : window_(sf::VideoMode(viewwidth, viewheight), "Angry Birds")
 
 void Game::LoadLevel(std::string filename)
 {
+    victory_achieved_ = 0; // Reset victory sound status
     // current_level_ = Level("Level 1");
     std::ifstream file(filename);
     if (file.rdstate() & (file.failbit | file.badbit))
@@ -37,6 +38,28 @@ void Game::SaveLevel()
 
 void Game::Start()
 {
+    victory_achieved_ = 0;
+    sf::SoundBuffer victory_sound_buffer;
+    victory_sound_buffer.loadFromFile("resources/sounds/victory_royale.wav");
+    sf::Sound victory_sound;
+    victory_sound.setBuffer(victory_sound_buffer);
+    victory_sound.setVolume(20);
+
+    sf::SoundBuffer bg_music_buffer;
+    bg_music_buffer.loadFromFile("resources/sounds/angry_birds_bg_music.wav");
+    sf::Sound bg_music;
+    bg_music.setBuffer(bg_music_buffer);
+    bg_music.setVolume(1);
+    bg_music.setLoop(true);
+    bg_music.play();
+
+    background_texture_.loadFromFile("./resources/images/bg_img.jpeg");
+    background_texture_.setRepeated(true);
+    bg_sprite_.setTexture(background_texture_);
+    bg_sprite_.setTextureRect({0, 0, viewwidth * 10, viewheight * 10});
+    bg_sprite_.setScale(1, 3);
+    bg_sprite_.setOrigin(0, 2 * background_texture_.getSize().y - 450); // background_texture_.getSize().y - viewheight - 25
+
     if (current_level_.GetName() == "")
     {
         std::cout << "You need to load a level before starting the game" << std::endl;
@@ -62,11 +85,15 @@ void Game::Start()
     sf::Text score;
     score.setFont(font);
     score.setFillColor(sf::Color::White);
+    score.setOutlineColor(sf::Color::Black);
+    score.setOutlineThickness(3.0f);
     score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
     score.setCharacterSize(40);
     sf::Text high_score;
     high_score.setFont(font);
     high_score.setFillColor(sf::Color::White);
+    high_score.setOutlineColor(sf::Color::Black);
+    high_score.setOutlineThickness(3.0f);
     high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
     high_score.setCharacterSize(40);
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
@@ -186,6 +213,7 @@ void Game::Start()
             }
         }
         window_.clear(sf::Color::Blue);
+        window_.draw(bg_sprite_);
         if (main_menu.IsOpen())
         {
             level_selector.Open();
@@ -212,6 +240,7 @@ void Game::Start()
                     std::cout << "Loaded level 1" << std::endl;
                     end_screen.SetLevel(1);
                     pause_menu.Close();
+                    end_screen.Close();
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 600 && mouse_position.x <= 900 && mouse_position.y >= 400 && mouse_position.y <= 680)
@@ -220,6 +249,7 @@ void Game::Start()
                     std::cout << "Loaded level 2" << std::endl;
                     end_screen.SetLevel(2);
                     pause_menu.Close();
+                    end_screen.Close();
                     level_selector.Close();
                 }
                 else if (mouse_position.x >= 1100 && mouse_position.x <= 1500 && mouse_position.y >= 400 && mouse_position.y <= 680)
@@ -228,6 +258,7 @@ void Game::Start()
                     std::cout << "Loaded level 3" << std::endl;
                     end_screen.SetLevel(3);
                     pause_menu.Close();
+                    end_screen.Close();
                     level_selector.Close();
                 }
             }
@@ -371,11 +402,18 @@ void Game::Start()
 
         if (current_level_.IsLevelEnded() && settled)
         {
+            if (victory_achieved_ == 0)
+            {
+                std::cout << "Play victory sound" << std::endl;
+                victory_sound.play();
+                victory_achieved_ = 1;
+            }
+
             // Save highscore and Open endscreen
             int current = current_level_.GetHighScore();
             std::list<int> high_scores = current_level_.UpdateHighScore();
             UpdateSavedHighScore(high_scores);
-         //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
+            //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
             if (current != current_level_.GetHighScore())
             {
                 end_screen.ShowHighScore();

@@ -24,6 +24,9 @@ private:
     std::string current_level_file_name_;
     Level current_level_;
     sf::RenderWindow window_;
+    sf::Texture background_texture_;
+    sf::Sprite bg_sprite_;
+    int victory_achieved_; // Variable for keeping track if the victory sound has already played
 };
 
 #endif // ANGRY_BIRDS_GAME
