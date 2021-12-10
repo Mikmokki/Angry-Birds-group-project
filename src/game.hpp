@@ -5,6 +5,7 @@
 #include "main_menu.hpp"
 #include "pause_menu.hpp"
 #include "level_selector.hpp"
+#include "level_end_menu.hpp"
 #include <fstream>
 #include <sstream>
 #include "utils.hpp"

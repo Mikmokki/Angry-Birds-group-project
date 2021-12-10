@@ -50,12 +50,13 @@ void Game::Start()
 
     PauseMenu pause_menu = PauseMenu();
 
+    LevelEndMenu end_screen = LevelEndMenu();
+
     auto IsMenuOpen = [&]()
     {
-        return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen();
+        return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen() || end_screen.IsOpen();
     };
 
-    MainMenu menu = MainMenu();
     sf::Font font;
     font.loadFromFile("../resources/fonts/Raleway-Medium.ttf");
     sf::Text score;
@@ -210,6 +211,7 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
+                    bool has_player_won = false;
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -217,6 +219,7 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level2.ab");
                     std::cout << "Loaded level 2" << std::endl;
+                    bool has_player_won = false;
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -224,6 +227,7 @@ void Game::Start()
                 {
                     LoadLevel("../resources/levels/level3.ab");
                     std::cout << "Loaded level 3" << std::endl;
+                    bool has_player_won = false;
                     pause_menu.Close();
                     level_selector.Close();
                 }
@@ -243,7 +247,28 @@ void Game::Start()
                     main_menu.Open();
                 }
             }
+            current_level_.DrawLevel(window_);
             pause_menu.Draw(window_);
+        }
+        else if (end_screen.IsOpen())
+        {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                std::cout << mouse_position.x << "  " << mouse_position.y << std::endl;
+                if (mouse_position.x >= 620 && mouse_position.x <= 775 && mouse_position.y >= 485 && mouse_position.y <= 605)
+                {
+                    end_screen.Close();
+                }
+                else if (mouse_position.x >= 835 && mouse_position.x <= 990 && mouse_position.y >= 490 && mouse_position.y <= 605)
+                {
+                    int next_level = std::min(current_level_.GetLevelNumber() + 1, 3);
+                    LoadLevel("../resources/levels/level" + std::to_string(next_level) + ".ab");
+                    bool has_player_won = false;
+                    std::cout << "Loaded level " + next_level << std::endl;
+                    end_screen.Close();
+                }
+            }
+            end_screen.Draw(window_);
         }
         else
         {
@@ -310,12 +335,16 @@ void Game::Start()
             window_.draw(pause);
         }
 
-        if (current_level_.IsLevelEnded() && !has_player_won)
+        if (current_level_.IsLevelEnded())
         {
-            // Save highscore and Open endscreen
-            std::list<int> high_scores = current_level_.UpdateHighScore();
-            UpdateSavedHighScore(high_scores);
-            has_player_won = true; // Only update highscores once
+            if (!has_player_won)
+            {
+                // Save highscore and Open endscreen
+                std::list<int> high_scores = current_level_.UpdateHighScore();
+                UpdateSavedHighScore(high_scores);
+                has_player_won = true; // Only update highscores once
+            }
+            end_screen.Open();
         }
         window_.display();
     }

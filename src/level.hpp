@@ -46,6 +46,11 @@ public:
 
     int GetHighScore();
 
+    int GetLevelNumber()
+    {
+        return level_number_;
+    }
+
     std::list<int> UpdateHighScore();
 
     void ThrowBird(int angle, b2Vec2 velocity);
@@ -74,6 +79,7 @@ private:
     int score_ = 0;
     std::list<int> high_scores_;
     bool level_ended_ = false;
+    int level_number_;
 };
 
 #endif // ANGRY_BIRDS_LEVEL
