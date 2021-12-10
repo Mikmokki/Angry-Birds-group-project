@@ -150,3 +150,30 @@ Graphical interface is implemented. The slingshot mechanic with moving camera vi
 5. Player nickname
 6. Different kind of bird
 7. Sound effects
+
+
+
+
+# Meeting 10.12.2021 15:00
+
+**Participants**: 
+1. Kalle Kankaanpää
+2. Jaakko Hintsala
+3. Mikko Juusti
+4. Sami Porio
+
+## Summary of works
+1. The starring system based on play performance added. Added advanced collision mechanics, now pigs die on wall collision and walls will break if hit hard enough. More graphics added when a level is cleared. 
+
+## Challenges
+1. Level creation and some high score mechanics are still being developed. 
+
+## Actions
+1. Finalize some graphics, fine tune high scores and create levels.
+
+## Project status
+The game is almost done. Intense testing and a lot of fine tuning is to be done. 
+
+### TODOs
+1. Create levels
+2. Player nickname
