@@ -16,4 +16,6 @@ namespace utils
     std::ofstream OpenFileSafe(const std::string filename);
 
     b2Vec2 DimensionsFromPolygon(const b2PolygonShape *shape);
+
+    bool CmpHighScore(const std::tuple<std::string, int> &a, const std::tuple<std::string, int> &b);
 }

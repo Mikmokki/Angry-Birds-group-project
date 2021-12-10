@@ -15,6 +15,7 @@ private:
     sf::Text level_names_[level_amount_];
     sf::Texture preview_textures_[level_amount_];
     sf::RectangleShape preview_images_[level_amount_];
+    sf::Text back_button_;
 };
 
 #endif

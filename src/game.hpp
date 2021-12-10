@@ -6,6 +6,7 @@
 #include "pause_menu.hpp"
 #include "level_selector.hpp"
 #include "level_end_menu.hpp"
+#include "high_scores.hpp"
 #include <fstream>
 #include <sstream>
 #include "utils.hpp"
@@ -16,7 +17,7 @@ public:
     Game();
     void LoadLevel(std::string filename);
     void SaveLevel();
-    void UpdateSavedHighScore(std::list<int> high_scores);
+    void UpdateSavedHighScore(std::list<std::tuple<std::string, int>> high_scores);
     void LoadIcon();
     void Start();
 

@@ -69,9 +69,12 @@ void Game::Start()
 
     LevelEndMenu end_screen = LevelEndMenu(0);
 
+    HighScores high_scores = HighScores(current_level_);
+    high_scores.Close();
+
     auto IsMenuOpen = [&]()
     {
-        return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen() || end_screen.IsOpen();
+        return main_menu.IsOpen() || level_selector.IsOpen() || pause_menu.IsOpen() || end_screen.IsOpen() || high_scores.IsOpen();
     };
 
     sf::Font font;
@@ -88,7 +91,7 @@ void Game::Start()
     high_score.setFillColor(sf::Color::White);
     high_score.setOutlineColor(sf::Color::Black);
     high_score.setOutlineThickness(3.0f);
-    high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+    high_score.setString(std::string("High Score: ") + std::to_string(std::get<1>(current_level_.GetHighScore())));
     high_score.setCharacterSize(40);
     sf::RectangleShape pause(sf::Vector2f(100.0f, 100.0f));
     sf::Texture pauseImage;
@@ -174,6 +177,13 @@ void Game::Start()
                 game_view.setCenter(default_view.getCenter());
                 break;
             }
+            case sf::Event::TextEntered:
+            {
+                if (main_menu.IsOpen())
+                {
+                    main_menu.ChangeNickname(event.text.unicode);
+                }
+            }
             case sf::Event::EventType::KeyPressed:
 
                 switch (event.key.code)
@@ -198,9 +208,17 @@ void Game::Start()
                         game_view.move(10, 0);
                     break;
                 case sf::Keyboard::Escape:
-                    game_view = window_.getDefaultView();
-                    window_.setView(game_view);
-                    pause_menu.Open();
+                    if (level_selector.IsOpen())
+                    {
+                        main_menu.Open();
+                        level_selector.Close();
+                    }
+                    else
+                    {
+                        game_view = window_.getDefaultView();
+                        window_.setView(game_view);
+                        pause_menu.Open();
+                    }
                     break;
 
                 default:
@@ -210,16 +228,45 @@ void Game::Start()
         }
         window_.clear(sf::Color::Blue);
         window_.draw(bg_sprite_);
-        if (main_menu.IsOpen())
+        if (high_scores.IsOpen())
+        {
+            high_scores.SetLevel(current_level_);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                if (mouse_position.x >= 7 && mouse_position.x <= 183 && mouse_position.y >= 120 && mouse_position.y <= 180)
+                {
+                    high_scores.Close();
+                }
+                else if (mouse_position.x >= 1200 && mouse_position.x <= 1300 && mouse_position.y >= 300 && mouse_position.y <= 360)
+                {
+                    LoadLevel("resources/levels/level1.ab");
+                }
+                else if (mouse_position.x >= 1200 && mouse_position.x <= 1300 && mouse_position.y >= 400 && mouse_position.y <= 460)
+                {
+                    LoadLevel("resources/levels/level2.ab");
+                }
+                else if (mouse_position.x >= 1200 && mouse_position.x <= 1300 && mouse_position.y >= 500 && mouse_position.y <= 560)
+                {
+                    LoadLevel("resources/levels/level3.ab");
+                }
+            }
+            high_scores.Draw(window_);
+        }
+        else if (main_menu.IsOpen())
         {
             level_selector.Open();
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
+
                 if (mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
                 {
                     main_menu.Close();
                 }
-                else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
+                else if (mouse_position.x >= 1007 && mouse_position.x <= 1448 && mouse_position.y >= 320 && mouse_position.y <= 400)
+                {
+                    high_scores.Open();
+                }
+                else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 420 && mouse_position.y <= 480)
                 {
                     window_.close();
                 }
@@ -230,7 +277,12 @@ void Game::Start()
         {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
+                if (mouse_position.x >= 7 && mouse_position.x <= 183 && mouse_position.y >= 120 && mouse_position.y <= 180)
+                {
+                    main_menu.Open();
+                    level_selector.Close();
+                }
+                else if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("resources/levels/level1.ab");
                     end_screen.SetLevel(1);
@@ -318,7 +370,7 @@ void Game::Start()
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
             high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(window_.getSize().x * 0.7, 40)));
-            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+            high_score.setString(std::string("High Score: ") + std::to_string(std::get<1>(current_level_.GetHighScore())));
             window_.draw(score);
             window_.draw(high_score);
             current_level_.DrawLevel(window_);
@@ -365,7 +417,7 @@ void Game::Start()
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
             high_score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 40)));
-            high_score.setString(std::string("High Score: ") + std::to_string(current_level_.GetHighScore()));
+            high_score.setString(std::string("High Score: ") + std::to_string(std::get<1>(current_level_.GetHighScore())));
             pause.setPosition(window_.mapPixelToCoords(sf::Vector2i(0, 0)));
             for (int i = 0; i < 4; i++)
             {
@@ -388,32 +440,33 @@ void Game::Start()
             window_.draw(high_score);
 
             window_.draw(pause);
+
+            if (current_level_.IsLevelEnded() && settled)
+            {
+                if (victory_achieved_ == 0)
+                {
+                    victory_sound.play();
+                    victory_achieved_ = 1;
+                }
+                // Save highscore and Open endscreen
+                int current = std::get<1>(current_level_.GetHighScore());
+                std::list<std::tuple<std::string, int>> high_scores = current_level_.UpdateHighScore(main_menu.GetNickname());
+                high_scores.sort(utils::CmpHighScore);
+                UpdateSavedHighScore(high_scores);
+                if (current != std::get<1>(current_level_.GetHighScore()))
+                {
+                    end_screen.ShowHighScore();
+                }
+                end_screen.SelectStars(current_level_.GetStars());
+                end_screen.Open();
+            }
         }
 
-        if (current_level_.IsLevelEnded() && settled)
-        {
-            if (victory_achieved_ == 0)
-            {
-                victory_sound.play();
-                victory_achieved_ = 1;
-            }
-
-            // Save highscore and Open endscreen
-            int current = current_level_.GetHighScore();
-            std::list<int> high_scores = current_level_.UpdateHighScore();
-            UpdateSavedHighScore(high_scores);
-            if (current != current_level_.GetHighScore())
-            {
-                end_screen.ShowHighScore();
-            }
-            end_screen.SelectStars(current_level_.GetStars());
-            end_screen.Open();
-        }
         window_.display();
     }
 }
 
-void Game::UpdateSavedHighScore(std::list<int> high_scores)
+void Game::UpdateSavedHighScore(std::list<std::tuple<std::string, int>> high_scores)
 {
     const int line_to_update = 2;
     // Read all lines to memory, this shouldn't be a problem since save files are quite small
@@ -431,9 +484,9 @@ void Game::UpdateSavedHighScore(std::list<int> high_scores)
 
     std::stringstream high_scores_stream;
 
-    for (auto score : high_scores)
+    for (auto high_score : high_scores)
     {
-        high_scores_stream << score << ";";
+        high_scores_stream << std::get<0>(high_score) << ":" << std::get<1>(high_score) << ";";
     }
     // Replace second row
     lines[1] = high_scores_stream.str();
