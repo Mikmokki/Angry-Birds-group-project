@@ -11,7 +11,7 @@ public:
     void Draw(sf::RenderWindow &window);
 
 private:
-    const static int button_amount_ = 4;
+    const static int button_amount_ = 3;
     sf::Text menu_items_[button_amount_];
 };
 

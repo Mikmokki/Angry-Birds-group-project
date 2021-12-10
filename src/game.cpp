@@ -175,9 +175,17 @@ void Game::Start()
                         game_view.move(10, 0);
                     break;
                 case sf::Keyboard::Escape:
-                    game_view = window_.getDefaultView();
-                    window_.setView(game_view);
-                    pause_menu.Open();
+                    if (level_selector.IsOpen())
+                    {
+                        main_menu.Open();
+                        level_selector.Close();
+                    }
+                    else
+                    {
+                        game_view = window_.getDefaultView();
+                        window_.setView(game_view);
+                        pause_menu.Open();
+                    }
                     break;
 
                 default:
@@ -191,11 +199,16 @@ void Game::Start()
             level_selector.Open();
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
+
                 if (mouse_position.x >= 1006 && mouse_position.x <= 1160 && mouse_position.y >= 220 && mouse_position.y <= 300)
                 {
                     main_menu.Close();
                 }
-                else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 520 && mouse_position.y <= 580)
+                else if (mouse_position.x >= 1007 && mouse_position.x <= 1448 && mouse_position.y >= 320 && mouse_position.y <= 400)
+                {
+                    // show highscores
+                }
+                else if (mouse_position.x >= 1006 && mouse_position.x <= 1136 && mouse_position.y >= 420 && mouse_position.y <= 480)
                 {
                     window_.close();
                 }
@@ -206,7 +219,12 @@ void Game::Start()
         {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
+                if (mouse_position.x >= 7 && mouse_position.x <= 183 && mouse_position.y >= 120 && mouse_position.y <= 180)
+                {
+                    main_menu.Open();
+                    level_selector.Close();
+                }
+                else if (mouse_position.x >= 100 && mouse_position.x <= 400 && mouse_position.y >= 400 && mouse_position.y <= 680)
                 {
                     LoadLevel("resources/levels/level1.ab");
                     std::cout << "Loaded level 1" << std::endl;
@@ -375,7 +393,7 @@ void Game::Start()
             int current = current_level_.GetHighScore();
             std::list<int> high_scores = current_level_.UpdateHighScore();
             UpdateSavedHighScore(high_scores);
-         //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
+            //   std::cout << current << "      " << current_level_.GetHighScore() << std::endl;
             if (current != current_level_.GetHighScore())
             {
                 end_screen.ShowHighScore();

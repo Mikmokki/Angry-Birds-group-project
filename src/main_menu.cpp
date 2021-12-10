@@ -2,7 +2,7 @@
 
 MainMenu::MainMenu() : Menu()
 {
-    std::string button_texts[button_amount_] = {"Play", "Level Editor", "High Scores", "Exit"};
+    std::string button_texts[button_amount_] = {"Play", "High Scores", "Exit"};
     for (int i = 0; i < button_amount_; ++i)
     {
         menu_items_[i].setFont(font_);
