@@ -34,7 +34,19 @@ SET(BOX2D_BUILD_TESTBED false CACHE BOOL "skip building testbed" FORCE)
 SET(BOX2D_BUILD_UNIT_TESTS false CACHE BOOL "skip building unit tests" FORCE)
 
 # SFML
-add_subdirectory("${SFML_DIR}" SFML)
+#
+#add_subdirectory("${SFML_DIR}" SFML)
+#
+if(UNIX)
+find_package(SFML 2.5 
+COMPONENTS 
+  system window graphics network audio REQUIRED)
+  else(UNIX)
+  add_subdirectory("${SFML_DIR}" SFML)
+endif(UNIX)
+
+
+
 target_link_libraries(angry_birds sfml-graphics sfml-audio sfml-network sfml-system sfml-window)
 
 if(BUILD_TESTS)
