@@ -5,13 +5,16 @@
 #include "wall.hpp"
 #include <algorithm>
 #include <iostream>
+#include <SFML/Audio.hpp>
 
 Level::Level() : name_("") {}
 
 Level::Level(std::string name) : name_(name)
 {
-
-    std::list<int> high_scores(1290); // should be read from the file
+    std::string nickname = "teppo";
+    std::tuple<std::string, int> test_high_score = std::make_tuple(nickname, 1290);
+    std::list<std::tuple<std::string, int>> high_scores; // should be read from the file
+    high_scores.push_back(test_high_score);
     high_scores_ = high_scores;
     world_ = new b2World(gravity);
     // Creating ground box
@@ -161,17 +164,25 @@ Level::Level(std::ifstream &file)
             name_ = name;
         }
         level_number_ = std::stoi(name_.substr(5, name_.size() - 3));
+        char _; // character dump
         // Read highscores from second line
         std::string high_scores_string;
         std::getline(file, high_scores_string);
         std::stringstream hs_ss(high_scores_string);
 
-        std::list<int> high_scores;
+        std::list<std::tuple<std::string, int>> high_scores;
         std::string high_score;
         std::getline(hs_ss, high_score, ';');
         while (hs_ss.good())
         {
-            high_scores.push_back(std::stoi(high_score));
+            int score;
+            std::string name, score_str;
+            std::stringstream tmp(high_score);
+            std::getline(tmp, name, ':');
+            std::getline(tmp, score_str);
+            score = std::stoi(score_str);
+
+            high_scores.push_back({name, score});
             std::getline(hs_ss, high_score, ';');
         }
 
@@ -189,7 +200,6 @@ Level::Level(std::ifstream &file)
             file.get(obj_type);
             file.ignore(); // Ignore the following separator
 
-            char _; // character dump
             // Read the body definition
             b2BodyDef body_def;
 
@@ -313,6 +323,7 @@ Level::Level(std::ifstream &file)
 
 void Level::ThrowBird(int angle, b2Vec2 velocity)
 {
+
     if (!IsLevelEnded())
     {
         b2Body *body = GetBird()->GetBody();
@@ -322,8 +333,10 @@ void Level::ThrowBird(int angle, b2Vec2 velocity)
         GetBird()->Throw();
     }
 }
+
 void Level::ResetBird()
 {
+
     if (birds_.size() > 1)
     {
         birds_.pop_front();
@@ -344,7 +357,6 @@ bool ObjectRemover(Object *obj)
 
 bool Level::DrawLevel(sf::RenderWindow &window)
 {
-
     // Draw slingshot
     sf::RectangleShape slingshot(sf::Vector2f(100.0f, 100.0f));
     sf::Vector2f slingshot_center = utils::B2ToSfCoords(bird_starting_position);
@@ -358,7 +370,6 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 
     for (b2Contact *ce = world_->GetContactList(); ce; ce = ce->GetNext())
     {
-
         b2Contact *c = ce;
 
         Object *objA = reinterpret_cast<Object *>(c->GetFixtureA()->GetUserData().pointer);
@@ -366,15 +377,20 @@ bool Level::DrawLevel(sf::RenderWindow &window)
 
         score_ = score_ + objA->TryToDestroy(objB->GetBody()->GetLinearVelocity().Length());
         score_ = score_ + objB->TryToDestroy(objA->GetBody()->GetLinearVelocity().Length());
-
-        // std::cout << "A inertia:" << objA->GetBody()->GetInertia() << std::endl;
-        //  std::cout << "B inertia:" << objB->GetBody()->GetInertia() << std::endl;
     }
 
     for (auto ob : objects_)
     {
         if (ob->IsDestroyed())
         {
+            if (Pig *p = dynamic_cast<Pig *>(ob))
+            {
+                p->MakeSound();
+            }
+            else
+            {
+                ob->MakeSound();
+            }
             world_->DestroyBody(ob->GetBody());
         }
     }
@@ -470,7 +486,7 @@ void Level::SaveState(std::ofstream &file)
     // Write highscores on second line
     for (auto high_score : high_scores_)
     {
-        file << high_score << ";";
+        file << std::get<0>(high_score) << ":" << std::get<1>(high_score) << ";";
     }
     file << std::endl;
     // Write available birds on the third line
@@ -490,25 +506,24 @@ void Level::SaveState(std::ofstream &file)
     }
 }
 
-int Level::GetHighScore()
+std::tuple<std::string, int> Level::GetHighScore()
 {
-    high_scores_.sort();
+    high_scores_.sort(utils::CmpHighScore);
     high_scores_.reverse();
-    int high_score = high_scores_.front();
-    return high_score;
+    return high_scores_.front();
 }
 
-std::list<int> Level::UpdateHighScore()
+std::list<std::tuple<std::string, int>> Level::UpdateHighScore(std::string nickname)
 {
-    high_scores_.sort();
-    if (high_scores_.size() > 10)
+    high_scores_.sort(utils::CmpHighScore);
+    if (high_scores_.size() >= 10)
     {
         auto it = high_scores_.begin();
         while (it != high_scores_.end())
         {
-            if (score_ > *it)
+            if (score_ > std::get<1>(*it))
             {
-                (*it) = score_;
+                (*it) = {nickname, score_};
                 break;
             }
             it++;
@@ -516,7 +531,7 @@ std::list<int> Level::UpdateHighScore()
     }
     else
     {
-        high_scores_.push_back(score_);
+        high_scores_.push_back({nickname, score_});
     }
     return high_scores_;
 }

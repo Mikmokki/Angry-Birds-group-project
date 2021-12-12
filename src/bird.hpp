@@ -18,22 +18,13 @@ public:
     };
     void MakeSound()
     {
-
-        if (!soundBuffer.loadFromFile("resources/sounds/kukko.wav"))
-        {
-            std::cout << "bird failed to load sound " << std::endl;
-            return;
-        }
-
+        soundBuffer.loadFromFile("resources/sounds/bird.wav");
         sound.setBuffer(soundBuffer);
-        sound.setVolume(50);
+        sound.setVolume(5);
         sound.play();
-
-        std::cout << "tried to make sound " << sound.getStatus() << std::endl;
-        return;
     }
 
-     void Throw()
+    void Throw()
     {
         thrown_ = true;
     }

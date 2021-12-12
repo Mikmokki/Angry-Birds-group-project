@@ -12,6 +12,11 @@ LevelSelector::LevelSelector()
         level_names_[i].setCharacterSize(80);
         level_names_[i].setPosition(100 + i * 500, 600);
     }
+    back_button_.setFont(font_);
+    back_button_.setFillColor(sf::Color::White);
+    back_button_.setString("Back");
+    back_button_.setCharacterSize(80);
+    back_button_.setPosition(0, 100);
     for (int i = 0; i < level_amount_; i++)
     {
         preview_textures_[i].loadFromFile("resources/images/" + preview_filenames[i]);
@@ -32,4 +37,5 @@ void LevelSelector::Draw(sf::RenderWindow &window)
     {
         window.draw(level_name);
     }
+    window.draw(back_button_);
 }

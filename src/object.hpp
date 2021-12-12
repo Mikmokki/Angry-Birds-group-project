@@ -37,14 +37,16 @@ public:
     // Get type of the object (for serialization purposes)
     virtual char GetType() = 0;
 
-    void MakeSound() { return; }
+    void MakeSound();
 
 protected:
     sf::Sprite sprite_;
     sf::Texture texture_;
     bool destructable_ = false;
     float destruction_threshold_ = 0.f;
-    int destruction_points_ = 100;
+    int destruction_points_ = 20;
+    sf::SoundBuffer punch_sound_buffer_;
+    sf::Sound punch_sound_;
 
 private:
     b2Body *body_;

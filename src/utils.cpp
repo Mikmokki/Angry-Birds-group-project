@@ -93,4 +93,9 @@ namespace utils
         float height = max_h - min_h;
         return b2Vec2(width / 2, height / 2);
     }
+
+    bool CmpHighScore(const std::tuple<std::string, int> &a, const std::tuple<std::string, int> &b)
+    {
+        return std::get<1>(a) < std::get<1>(b);
+    }
 }

@@ -18,9 +18,21 @@ public:
     };
 
     virtual char GetType() { return 'P'; };
-
+    void MakeSound()
+    {
+        punch_sound_buffer_.loadFromFile("resources/sounds/punch.wav");
+        punch_sound_.setBuffer(punch_sound_buffer_);
+        punch_sound_.setVolume(20);
+        pig_sound_buffer_.loadFromFile("resources/sounds/pig.wav");
+        pig_sound_.setBuffer(pig_sound_buffer_);
+        pig_sound_.setVolume(20);
+        punch_sound_.play();
+        pig_sound_.play();
+    }
 private:
     const float pig_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
+    sf::SoundBuffer pig_sound_buffer_;
+    sf::Sound pig_sound_;
 };
 
 #endif // ANGRY_BIRDS_PIG
