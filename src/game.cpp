@@ -114,6 +114,8 @@ void Game::Start()
         obj_indicators[i].setFont(font);
         obj_indicators[i].setFillColor(sf::Color::White);
         obj_indicators[i].setCharacterSize(20);
+        obj_indicators[i].setOutlineColor(sf::Color::Black);
+        obj_indicators[i].setOutlineThickness(3.0f);
     }
 
     bool settled = false;            // Is the world in a settled state (nothing is moving)
