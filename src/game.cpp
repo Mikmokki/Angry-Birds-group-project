@@ -199,7 +199,7 @@ void Game::Start()
                     break;
 
                 case sf::Keyboard::Left:
-                    if (settled)
+                    if (settled && game_view.getCenter().x > window_.getDefaultView().getCenter().x)
                         game_view.move(-10, 0);
                     break;
 
