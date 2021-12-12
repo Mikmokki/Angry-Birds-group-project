@@ -15,6 +15,7 @@ public:
         sprite_.setOrigin(w / 2.f, h / 2.f);
         destruction_points_ = 500;
         destructable_ = true;
+        destruction_threshold_ = 100.0f;
     };
 
     virtual char GetType() { return 'P'; };
@@ -29,8 +30,8 @@ public:
         punch_sound_.play();
         pig_sound_.play();
     }
+
 private:
-    const float pig_scale_ = 0.1f; // Maybe could be replaced by levels scale and bodys radius
     sf::SoundBuffer pig_sound_buffer_;
     sf::Sound pig_sound_;
 };

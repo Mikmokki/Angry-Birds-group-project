@@ -9,109 +9,6 @@
 
 Level::Level() : name_("") {}
 
-Level::Level(std::string name) : name_(name)
-{
-    std::string nickname = "teppo";
-    std::tuple<std::string, int> test_high_score = std::make_tuple(nickname, 1290);
-    std::list<std::tuple<std::string, int>> high_scores; // should be read from the file
-    high_scores.push_back(test_high_score);
-    high_scores_ = high_scores;
-    world_ = new b2World(gravity);
-    // Creating ground box
-    b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, 0.0f);
-    b2Body *groundBody = world_->CreateBody(&groundBodyDef);
-
-    Object *gObj = new Ground(groundBody);
-
-    groundBodyDef.userData;
-    objects_.push_back(gObj);
-    b2PolygonShape groundBox;
-    float ground_w = 50.0f;
-    float ground_h = 1.0f;
-    groundBox.SetAsBox(ground_w, ground_h);
-
-    b2FixtureDef def;
-    def.shape = &groundBox;
-    def.density = 0.0f;
-
-    def.userData.pointer = reinterpret_cast<uintptr_t>(gObj);
-    groundBody->CreateFixture(&def);
-
-    // Create the bird object
-    float BIRD_RADIUS = 0.3f;
-
-    b2BodyDef birdDef;
-    birdDef.type = b2_dynamicBody;
-    birdDef.position = bird_starting_position;
-    birdDef.linearDamping = 0.5f; // This could be constant and should be adjusted
-    birdDef.gravityScale = 0;     // Set gravity scale initially to zero so bird floats on slingshot
-
-    b2Body *body = world_->CreateBody(&birdDef);
-    Bird *bird1 = new BoomerangBird(body, BIRD_RADIUS);
-    Bird *bird2 = new DroppingBird(body, BIRD_RADIUS);
-    Bird *bird3 = new SpeedBird(body, BIRD_RADIUS);
-    birds_.push_back(bird1);
-    birds_.push_back(bird2);
-    birds_.push_back(bird3);
-
-    b2CircleShape birdShape;
-    birdShape.m_radius = BIRD_RADIUS;
-
-    b2FixtureDef birdFixture;
-    birdFixture.shape = &birdShape;
-    birdFixture.density = 1.0f;
-    birdFixture.friction = 1.0f;
-    birdFixture.restitution = 0.4f;
-    birdFixture.userData.pointer = reinterpret_cast<uintptr_t>(GetBird());
-
-    body->CreateFixture(&birdFixture);
-
-    b2BodyDef pigBodyDef;
-
-    pigBodyDef.type = b2_dynamicBody;
-    pigBodyDef.position.Set(5.f, 3.f);
-    pigBodyDef.linearDamping = 0.5f;
-
-    b2CircleShape pigShape;
-    pigShape.m_radius = 0.3f;
-
-    b2Body *pigBody = world_->CreateBody(&pigBodyDef);
-    Object *pig_ = new Pig(pigBody, pigShape.m_radius);
-
-    b2FixtureDef pigFixture;
-    pigFixture.shape = &pigShape;
-    pigFixture.density = 1.0f;
-    pigFixture.friction = 1.0f;
-    pigFixture.restitution = 0.4f;
-    pigFixture.userData.pointer = reinterpret_cast<uintptr_t>(pig_);
-
-    pigBody->CreateFixture(&pigFixture);
-    objects_.push_back(pig_);
-
-    b2BodyDef wall_body_def;
-    wall_body_def.type = b2_dynamicBody;
-    wall_body_def.position.Set(10.f, 5.f);
-    wall_body_def.linearDamping = 0.5f;
-
-    b2PolygonShape wall_shape;
-    float wall_shape_w = 0.5f;
-    float wall_shape_h = 2.5f;
-    wall_shape.SetAsBox(wall_shape_w, wall_shape_h);
-
-    b2Body *wall_body = world_->CreateBody(&wall_body_def);
-    Object *wall_ = new Wall(wall_body, wall_shape_w, wall_shape_h);
-
-    b2FixtureDef wall_fixture;
-    wall_fixture.shape = &wall_shape;
-    wall_fixture.density = 1.0f;
-    wall_fixture.friction = 0.1f;
-    // wall_fixture.restitution = 0.4f;
-    wall_fixture.userData.pointer = reinterpret_cast<uintptr_t>(wall_);
-
-    wall_body->CreateFixture(&wall_fixture);
-    objects_.push_back(wall_);
-}
 std::vector<int> Level::CountBirdTypes()
 {
     int boomerang_count = 0;
@@ -198,6 +95,7 @@ Level::Level(std::ifstream &file)
         {
             char obj_type;
             file.get(obj_type);
+            std::cout << obj_type << std::endl;
             file.ignore(); // Ignore the following separator
 
             // Read the body definition

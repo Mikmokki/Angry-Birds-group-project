@@ -15,7 +15,7 @@ public:
 
         sprite_.setOrigin(w / 2.f, h / 2.f);
 
-        destruction_threshold_ = 300.f;
+        destruction_threshold_ = 600.f;
         destructable_ = true;
     };
 

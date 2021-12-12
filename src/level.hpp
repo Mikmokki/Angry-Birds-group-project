@@ -18,42 +18,23 @@ class Level
 {
 public:
     Level();
-    Level(std::string name);
     Level(std::ifstream &file);
 
-    std::string GetName() const
-    {
-        return name_;
-    };
+    std::string GetName() const { return name_; }
 
-    b2World *GetWorld()
-    {
-        return world_;
-    }
+    b2World *GetWorld() { return world_; }
 
-    std::list<Object *> objects()
-    {
-        return objects_;
-    }
+    std::list<Object *> objects() { return objects_; }
 
-    Bird *GetBird()
-    {
-        return birds_.front();
-    }
+    Bird *GetBird() { return birds_.front(); }
 
-    int GetScore()
-    {
-        return score_;
-    }
+    int GetScore() { return score_; }
 
     std::tuple<std::string, int> GetHighScore();
 
-    std::list<std::tuple<std::string, int>> GetHighScores() { return high_scores_; };
+    std::list<std::tuple<std::string, int>> GetHighScores() { return high_scores_; }
 
-    int GetLevelNumber()
-    {
-        return level_number_;
-    }
+    int GetLevelNumber() { return level_number_; }
 
     std::list<std::tuple<std::string, int>> UpdateHighScore(std::string nickname);
 
