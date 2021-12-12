@@ -410,9 +410,6 @@ void Game::Start()
                 // Update bird_position after reset
                 bird_position = utils::B2ToSfCoords(current_level_.GetBird()->GetBody()->GetPosition());
                 game_view.setCenter(std::max(bird_position.x, window_.getDefaultView().getCenter().x), std::min(bird_position.y, default_center.y));
-
-                // Save world to file
-                // SaveLevel();
             }
             score.setPosition(window_.mapPixelToCoords(sf::Vector2i(static_cast<int>(window_.getSize().x * 0.7), 0)));
             score.setString(std::string("Score: ") + std::to_string(current_level_.GetScore()));
@@ -440,6 +437,14 @@ void Game::Start()
             window_.draw(high_score);
 
             window_.draw(pause);
+
+            /*
+            if (has_just_settled)
+            {
+                // Save world to file
+                SaveLevel();
+            }
+            */
 
             if (current_level_.IsLevelEnded() && settled)
             {
@@ -473,11 +478,13 @@ void Game::UpdateSavedHighScore(std::list<std::tuple<std::string, int>> high_sco
     std::ifstream input(current_level_file_name_);
     std::vector<std::string> lines;
     std::string line;
-    std::getline(input, line);
     while (input.good())
     {
-        lines.push_back(line);
         std::getline(input, line);
+        if (line != "")
+        {
+            lines.push_back(line);
+        }
     }
 
     input.close();
