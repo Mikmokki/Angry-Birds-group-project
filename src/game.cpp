@@ -189,23 +189,27 @@ void Game::Start()
                 switch (event.key.code)
                 {
                 case sf::Keyboard::Up:
-                    if (settled)
+                    if (settled && game_view.getCenter().y > window_.getDefaultView().getCenter().y - 1500) // Bounded from top
                         game_view.move(0, -10);
                     break;
 
                 case sf::Keyboard::Down:
-                    if (settled)
+                    if (settled && game_view.getCenter().y < window_.getDefaultView().getCenter().y) //  Bounded from below
                         game_view.move(0, 10);
                     break;
 
                 case sf::Keyboard::Left:
-                    if (settled && game_view.getCenter().x > window_.getDefaultView().getCenter().x)
+                    if (settled && game_view.getCenter().x > window_.getDefaultView().getCenter().x) // Bounded from left
                         game_view.move(-10, 0);
                     break;
 
                 case sf::Keyboard::Right:
-                    if (settled)
+                    if (settled && game_view.getCenter().x < window_.getDefaultView().getCenter().x + 1500) // Bounded from right
                         game_view.move(10, 0);
+                    break;
+                case sf::Keyboard::Space:
+                    if (settled) // Move the view back to its original position
+                        game_view.move(window_.getDefaultView().getCenter().x - game_view.getCenter().x, window_.getDefaultView().getCenter().y - game_view.getCenter().y);
                     break;
                 case sf::Keyboard::Escape:
                     if (level_selector.IsOpen())
