@@ -95,7 +95,6 @@ Level::Level(std::ifstream &file)
         {
             char obj_type;
             file.get(obj_type);
-            std::cout << obj_type << std::endl;
             file.ignore(); // Ignore the following separator
 
             // Read the body definition
