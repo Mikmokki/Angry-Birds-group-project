@@ -261,7 +261,8 @@ bool Level::DrawLevel(sf::RenderWindow &window)
     sf::Texture slingshot_texture;
     slingshot_texture.loadFromFile("resources/images/slingshot.png");
     slingshot.setTexture(&slingshot_texture);
-    slingshot.setOrigin(50, 50);
+    slingshot.setScale(1, 1.5f);
+    slingshot.setOrigin(50, 30);
     slingshot.setPosition(slingshot_center);
     window.draw(slingshot);
 
